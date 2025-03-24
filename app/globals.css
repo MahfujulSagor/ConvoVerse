@@ -119,4 +119,12 @@
   body {
     @apply bg-background text-foreground;
   }
+<<<<<<< HEAD
 }
+=======
+}
+
+.code-block {
+  scrollbar-color: #424242 transparent;
+}
+>>>>>>> 3dda69b999cfc1f2e92de2b41af1bc219a2990d9
