@@ -1,20 +1,20 @@
-import React from 'react'
-import { Button } from './ui/button'
+import React from "react";
+import { Button } from "./ui/button";
+import logo from "@/public/OpenAI-black.svg";
+import Image from "next/image";
 
 const Nav = () => {
-
   return (
-    <div>
-        <div>
-            
-        </div>
+    <nav className="flex justify-between items-center px-4 h-2xl ">
+      <div>
+        <Image src={logo} height={80} width={80} alt="logo" className="" />
+      </div>
+      <div className="flex gap-4">
+        <Button variant={"outline"} className={`h-10 w-30`}>Login</Button>
+        <Button className={`h-10 w-30`}>Sign Up</Button>
+      </div>
+    </nav>
+  );
+};
 
-        <div>
-            <Button>Login</Button>
-            <Button>Sign Up</Button>
-        </div>
-    </div>
-  )
-}
-
-export default Nav
+export default Nav;
