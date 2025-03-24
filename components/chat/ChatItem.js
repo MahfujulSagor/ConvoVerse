@@ -1,12 +1,14 @@
+"use client";
 import textSnippet from "@/lib/static-response";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import OpenAiBlack from "@/public/OpenAI-black.svg";
 import Markdown from "react-markdown";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { Button } from "../ui/button";
 import { Copy } from "lucide-react";
+import { toast } from "sonner";
 
 const extractCode = (message) => {
   if (message.includes("```")) {
@@ -36,7 +38,20 @@ const isCode = (str) => {
 };
 
 const ChatItem = ({ content = textSnippet, role = "assistant" }) => {
+  const [copied, setCopied] = useState(false);
   const messageBlock = extractCode(content);
+
+  const handleCopy = async () => {
+    try {
+      // await navigator.clipboard.writeText();
+      setCopied(true);
+      toast.success("Code snippet copied to clipboard");
+      setTimeout(()=> setCopied(false), 1500);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to copy code snippet");
+    }
+  };
 
   return role === "assistant" ? (
     <div>
@@ -52,9 +67,9 @@ const ChatItem = ({ content = textSnippet, role = "assistant" }) => {
         messageBlock.map((block, index) => {
           return isCode(block) ? (
             <div key={index} className="relative">
-              <Button variant='outline' className='absolute top-1 right-1 cursor-pointer'><Copy/></Button>
+              <Button variant='ghost' onClick={handleCopy} className='absolute top-1 right-1 cursor-pointer text-white'><Copy className="w-4 h-4"/></Button>
               <SyntaxHighlighter
-                className='rounded-lg'
+                className='rounded-lg code-block max-w-3xl overflow-x-scroll'
                 key={index}
                 language="javascript"
                 style={nightOwl}
