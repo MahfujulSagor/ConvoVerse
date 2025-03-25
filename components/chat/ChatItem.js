@@ -2,12 +2,12 @@
 import textSnippet from "@/lib/static-response";
 import Image from "next/image";
 import React, { useState } from "react";
-import OpenAiBlack from "@/public/OpenAI-black.svg";
+import OpenAi from "@/public/OpenAI-white.svg";
 import Markdown from "react-markdown";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { Button } from "../ui/button";
-import { Copy } from "lucide-react";
+import { Copy, UserRound } from "lucide-react";
 import { toast } from "sonner";
 
 const extractCode = (message) => {
@@ -46,7 +46,7 @@ const ChatItem = ({ content = textSnippet, role = "assistant" }) => {
       // await navigator.clipboard.writeText();
       setCopied(true);
       toast.success("Code snippet copied to clipboard");
-      setTimeout(()=> setCopied(false), 1500);
+      setTimeout(() => setCopied(false), 1500);
     } catch (error) {
       console.error(error);
       toast.error("Failed to copy code snippet");
@@ -54,9 +54,9 @@ const ChatItem = ({ content = textSnippet, role = "assistant" }) => {
   };
 
   return role === "assistant" ? (
-    <div>
+    <div className="mb-40">
       <div>
-        <Image src={OpenAiBlack} alt="OpenAi logo" width={50} height={50} />
+        <Image src={OpenAi} alt="OpenAi logo" width={50} height={50} />
       </div>
       {!messageBlock && (
         <div>
@@ -67,9 +67,15 @@ const ChatItem = ({ content = textSnippet, role = "assistant" }) => {
         messageBlock.map((block, index) => {
           return isCode(block) ? (
             <div key={index} className="relative">
-              <Button variant='ghost' onClick={handleCopy} className='absolute top-1 right-1 cursor-pointer text-white'><Copy className="w-4 h-4"/></Button>
+              <Button
+                variant="ghost"
+                onClick={handleCopy}
+                className="absolute top-1 right-1 cursor-pointer text-white"
+              >
+                <Copy className="w-4 h-4" />
+              </Button>
               <SyntaxHighlighter
-                className='rounded-lg code-block max-w-3xl overflow-x-scroll'
+                className="rounded-lg code-block max-w-3xl overflow-x-scroll"
                 key={index}
                 language="javascript"
                 style={nightOwl}
@@ -85,7 +91,43 @@ const ChatItem = ({ content = textSnippet, role = "assistant" }) => {
         })}
     </div>
   ) : (
-    <div>User</div>
+    <div>
+      <div>
+        {/* <Image src={OpenAi} alt="OpenAi logo" width={50} height={50} /> */}
+        <UserRound className="w-12 h-12"/>
+      </div>
+      {!messageBlock && (
+        <div>
+          <Markdown>{content}</Markdown>
+        </div>
+      )}
+      {messageBlock &&
+        messageBlock.map((block, index) => {
+          return isCode(block) ? (
+            <div key={index} className="relative">
+              <Button
+                variant="ghost"
+                onClick={handleCopy}
+                className="absolute top-1 right-1 cursor-pointer text-white"
+              >
+                <Copy className="w-4 h-4" />
+              </Button>
+              <SyntaxHighlighter
+                className="rounded-lg code-block max-w-3xl overflow-x-scroll"
+                key={index}
+                language="javascript"
+                style={nightOwl}
+              >
+                {block}
+              </SyntaxHighlighter>
+            </div>
+          ) : (
+            <div key={index}>
+              <Markdown>{block}</Markdown>
+            </div>
+          );
+        })}
+    </div>
   );
 };
 
