@@ -9,28 +9,28 @@ const Landing = () => {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="flex flex-col gap-4">
-        <h1 className="text-center font-bold text-6xl ">
+        <h1 className="text-center font-bold text-6xl max-md:text-5xl ">
           The only AI tool you need.
         </h1>
-        <p className="text-center pb-5 font-semibold text-xl ">
+        <p className="text-center pb-10 font-semibold text-xl max-md:text-base ">
           Use top class AI models without the large pricetag.
         </p>
       </div>
 
       <div>
-        <Button className="h-10 w-30 ">Get Started</Button>
+        <Button className=" mb-5">Get Started</Button>
       </div>
 
       <div className="relative w-full flex items-center justify-center ">
           <div className="relative ">
-          <div className="relative h-[440px] w-[668px] rounded-3xl ">
+          <div className="relative h-[440px] max-md:h-[240px] w-[668px] max-md:w-[468px] rounded-3xl ">
             <Image
             src={mac}
             width={660}
             alt="macbook"
             className="relative z-3 "
             />
-            <div className="absolute rounded-4xl z-2 top-8 right-17 h-[370px] w-[540px] overflow-hidden  ">
+            <div className="absolute rounded-3xl z-2 top-8 max-md:top-6 right-17 max-md:right-10.5 h-[370px] max-md:h-[270px] w-[540px] max-md:w-[385px] overflow-hidden  ">
               <Image
               src={demo}
               alt="mac_demo"
@@ -40,7 +40,7 @@ const Landing = () => {
           </div>
           </div>
 
-          <div className="absolute top-[21%] right-[15%] max-md:hidden ">
+          <div className="absolute top-[21%] right-[15%] max-lg:hidden ">
           <div className="relative h-[350px] w-[165px] rounded-[3rem] ">
             <Image
             src={iphone}
