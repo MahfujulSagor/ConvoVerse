@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "./ui/button";
-import logo from "@/public/OpenAI-black.svg";
+import logo from "@/public/OpenAI-white.svg";
 import Image from "next/image";
 
 const Nav = () => {
