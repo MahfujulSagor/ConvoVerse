@@ -5,7 +5,7 @@ import Image from "next/image";
 
 const Nav = () => {
   return (
-    <nav className="flex justify-between items-center px-4 h-2xl ">
+    <nav className="flex justify-between items-center px-4 h-2xl mb-[6rem] ">
       <div>
         <Image src={logo} height={80} width={80} alt="logo" className="" />
       </div>
