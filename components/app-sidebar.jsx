@@ -14,8 +14,6 @@ import {
 } from "@/components/ui/sidebar";
 import { TeamSwitcher } from "@/components/team-switcher";
 
-// import { ModeToggle } from "./mode-toggle";
-
 export function AppSidebar({ ...props }) {
 
   const data = {
@@ -58,7 +56,7 @@ export function AppSidebar({ ...props }) {
       },
     ],
   };
-  
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -66,7 +64,6 @@ export function AppSidebar({ ...props }) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        {/* <ModeToggle/> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
