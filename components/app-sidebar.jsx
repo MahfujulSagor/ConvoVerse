@@ -6,13 +6,15 @@ import { Truck, Store, Settings2, LayoutDashboard, Database, Tag, UserRound } fr
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 
+import OpenAI from "@/public/OpenAI-white.svg";
+
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { TeamSwitcher } from "@/components/team-switcher";
+import { AISwitcher } from "@/components/ai-switcher";
 
 export function AppSidebar({ ...props }) {
 
@@ -22,11 +24,15 @@ export function AppSidebar({ ...props }) {
       email: "user@gmail.com",
       avatar: UserRound,
     },
-    teams: [
+    AI: [
       {
-        name: "Chat_Ai",
-        logo: Store,
+        name: "OpenAI",
+        logo: OpenAI,
       },
+      // {
+      //   name: "Deepseek",
+      //   logo: Store,
+      // },
     ],
     navMain: [
       {
@@ -60,7 +66,7 @@ export function AppSidebar({ ...props }) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <AISwitcher AI={data.AI} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
