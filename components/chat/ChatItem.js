@@ -1,13 +1,10 @@
 "use client";
-import textSnippet from "@/lib/static-response";
-import Image from "next/image";
 import React, { useState } from "react";
-import OpenAi from "@/public/OpenAI-white.svg";
 import Markdown from "react-markdown";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { Button } from "../ui/button";
-import { Copy, UserRound } from "lucide-react";
+import { Copy } from "lucide-react";
 import { toast } from "sonner";
 
 const extractCode = (message) => {
@@ -37,7 +34,7 @@ const isCode = (str) => {
   return false;
 };
 
-const ChatItem = ({ content = textSnippet, role = "assistant" }) => {
+const ChatItem = ({ content, role }) => {
   const [copied, setCopied] = useState(false);
   const messageBlock = extractCode(content);
 
@@ -54,19 +51,16 @@ const ChatItem = ({ content = textSnippet, role = "assistant" }) => {
   };
 
   return role === "assistant" ? (
-    <div className="mb-40">
-      <div>
-        <Image src={OpenAi} alt="OpenAi logo" width={50} height={50} />
-      </div>
+    <div className="mb-6 md:text-base text-sm">
       {!messageBlock && (
-        <div>
+        <div className="my-2">
           <Markdown>{content}</Markdown>
         </div>
       )}
       {messageBlock &&
         messageBlock.map((block, index) => {
           return isCode(block) ? (
-            <div key={index} className="relative">
+            <div key={index} className="relative mt-2">
               <Button
                 variant="ghost"
                 onClick={handleCopy}
@@ -84,49 +78,45 @@ const ChatItem = ({ content = textSnippet, role = "assistant" }) => {
               </SyntaxHighlighter>
             </div>
           ) : (
-            <div key={index}>
+            <div key={index} className="mt-2">
               <Markdown>{block}</Markdown>
             </div>
           );
         })}
     </div>
   ) : (
-    <div>
-      <div>
-        {/* <Image src={OpenAi} alt="OpenAi logo" width={50} height={50} /> */}
-        <UserRound className="w-12 h-12"/>
-      </div>
-      {!messageBlock && (
-        <div>
+    <div className="mb-6 w-full flex justify-end items-center md:text-base text-sm">
+      <div className="max-w-lg bg-secondary rounded-4xl py-2 px-5">
+        <div className="my-2">
           <Markdown>{content}</Markdown>
         </div>
-      )}
-      {messageBlock &&
-        messageBlock.map((block, index) => {
-          return isCode(block) ? (
-            <div key={index} className="relative">
-              <Button
-                variant="ghost"
-                onClick={handleCopy}
-                className="absolute top-1 right-1 cursor-pointer text-white"
-              >
-                <Copy className="w-4 h-4" />
-              </Button>
-              <SyntaxHighlighter
-                className="rounded-lg code-block max-w-3xl overflow-x-scroll"
-                key={index}
-                language="javascript"
-                style={nightOwl}
-              >
-                {block}
-              </SyntaxHighlighter>
-            </div>
-          ) : (
-            <div key={index}>
-              <Markdown>{block}</Markdown>
-            </div>
-          );
-        })}
+        {/* {messageBlock &&
+          messageBlock.map((block, index) => {
+            return isCode(block) ? (
+              <div key={index} className="relative mt-2">
+                <Button
+                  variant="ghost"
+                  onClick={handleCopy}
+                  className="absolute top-1 right-1 cursor-pointer text-white"
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+                <SyntaxHighlighter
+                  className="rounded-lg code-block max-w-3xl overflow-x-scroll"
+                  key={index}
+                  language="javascript"
+                  style={nightOwl}
+                >
+                  {block}
+                </SyntaxHighlighter>
+              </div>
+            ) : (
+              <div key={index} className="mt-2">
+                <Markdown>{block}</Markdown>
+              </div>
+            );
+          })} */}
+      </div>
     </div>
   );
 };
