@@ -35,12 +35,13 @@ export function AISwitcher({ AI }) {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground">
                 <Image
                   src={activeAI.logo}
                   alt={activeAI.name}
-                  width={16}
-                  height={16}
+                  width={32}
+                  height={32}
+                  className="shrink-0"
                 />
               </div>
               <div className="grid flex-1 text-left text-lg leading-tight">
@@ -64,10 +65,10 @@ export function AISwitcher({ AI }) {
                 onClick={() => setActiveAI(ai)}
                 className="gap-2 p-2"
               >
-                <div className="flex size-6 items-center justify-center rounded-sm border">
+                <div className="flex size-6 items-center justify-center rounded-sm">
                   <Image
-                    src={activeAI.logo}
-                    alt={activeAI.name}
+                    src={ai.logo}
+                    alt={ai.name}
                     width={16}
                     height={16}
                     className="shrink-0"
