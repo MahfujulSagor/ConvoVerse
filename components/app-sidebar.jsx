@@ -50,6 +50,8 @@ export function AppSidebar({ ...props }) {
         name: "Grok",
         logo: Grok,
       },
+        logo: Store,
+      },
     ],
     navMain: [
       {
