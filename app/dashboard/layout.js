@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
       >
         <SidebarProvider>
           <AppSidebar />
-          <SidebarTrigger />
+          <SidebarTrigger className='sticky top-5' />
           {children}
         </SidebarProvider>
       </body>
