@@ -23,8 +23,8 @@ const Landing = () => {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="flex flex-col gap-4">
-        <h1 className="text-center font-bold text-6xl max-md:text-5xl">
+      <div className="w-full px-4 flex flex-col gap-4">
+        <h1 className="text-center font-bold text-6xl max-sm:text-5xl">
           The only AI tool you need.
         </h1>
         <p className="text-center pb-10 font-semibold text-xl max-md:text-base">
@@ -33,7 +33,7 @@ const Landing = () => {
       </div>
 
       <div>
-        <Button className="mb-5">Get Started</Button>
+        <Button className="mb-6">Get Started</Button>
       </div>
 
       <div className="relative w-full flex items-center justify-center">
