@@ -29,10 +29,10 @@ export function AppSidebar({ ...props }) {
         name: "OpenAI",
         logo: OpenAI,
       },
-      {
-        name: "Deepseek",
-        logo: Store,
-      },
+      // {
+      //   name: "Deepseek",
+      //   logo: Store,
+      // },
     ],
     navMain: [
       {
