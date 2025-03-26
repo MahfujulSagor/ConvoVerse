@@ -3,7 +3,6 @@ import ChatItem from "@/components/chat/ChatItem";
 import { Textarea } from "@/components/ui/textarea";
 import { Paperclip, SendHorizonal } from "lucide-react";
 import React, { useState } from "react";
-import textSnippet ,{ userTextSnippet } from "@/lib/static-response";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -17,7 +16,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { BeatLoader } from "react-spinners";
-import { Input } from "@/components/ui/input";
 
 const inputSchema = z.object({
   message: z.string().nonempty("Message cannot be empty"),
@@ -47,7 +45,7 @@ const models = [
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(false);
-  const [userMessage, setUserMessage] = useState(""); // ? User message
+  const [messages, setMessages] = useState([]); // ? Chat messages
 
   const { register, handleSubmit, reset, control, setValue } = useForm({
     resolver: zodResolver(inputSchema),
@@ -59,11 +57,57 @@ const Dashboard = () => {
     },
   });
 
+  const deepseek = async (prompt) => {
+    try {
+      const response = await fetch(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "deepseek/deepseek-r1-distill-llama-70b:free", // ! Keep this in database
+            messages: [
+              {
+                role: "user",
+                content: prompt,
+              },
+            ],
+          }),
+        }
+      );
+      const data = response.json();
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // TODO: Send user message to the server
-  const onSubmit = (data) => {
-    setUserMessage(data.message);
-    setValue("role", "user");
-    console.log(data);
+  const onSubmit = async (data) => {
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      {
+        content: data.message,
+        role: data.role,
+      },
+    ]);
+    try {
+      const res = await deepseek(data.message);
+      const aiMessage = res.choices[0].message.content;
+      const aiRole = res.choices[0].message.role;
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          content: aiMessage,
+          role: aiRole,
+        },
+      ]);
+    } catch (error) {
+      console.log(error);
+    }
     reset();
   };
 
@@ -113,7 +157,7 @@ const Dashboard = () => {
         </div>
         {/* Balance */}
         <Button
-          variant='ghost'
+          variant="ghost"
           onClick={handleBalanceClick}
           className="border border-dashed rounded-4xl mr-8 cursor-pointer"
         >
@@ -132,13 +176,10 @@ const Dashboard = () => {
       <div className="max-w-3xl w-full mx-auto relative mt-26 min-h-screen">
         <div className="mr-8">
           {/* Chats */}
-          <div className="min-h-screen max-w-[700px] mx-auto mb-26">
-            <ChatItem
-              content={userTextSnippet.message}
-              role={userTextSnippet.role}
-            />
-            <ChatItem content={textSnippet.message} role={textSnippet.role} />
-            <ChatItem content={userMessage} role={userTextSnippet.role} />
+          <div className="min-h-screen code-blocks max-w-[700px] mx-auto mb-26">
+            {messages.map((msg, index) => (
+              <ChatItem key={index} content={msg.content} role={msg.role} />
+            ))}
           </div>
           {/* Input */}
           <div className="w-full max-w-3xl bg-background pb-8 sticky bottom-0 flex justify-center items-center">
@@ -161,12 +202,12 @@ const Dashboard = () => {
                 <div className="w-full flex justify-between items-center mt-2">
                   <div>
                     {/* FIXME: This should be a file input  */}
-                    <Button
+                    {/* <Button
                       variant="ghost"
                       className="cursor-pointer flex justify-center items-center text-[#676767]"
                     >
                       <Paperclip className="size-5" />
-                    </Button>
+                    </Button> */}
                   </div>
                   <div>
                     <Button

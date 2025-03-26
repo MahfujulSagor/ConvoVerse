@@ -6,9 +6,10 @@ import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { Button } from "../ui/button";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
+import { detectLanguage } from "@/lib/detectLanguage";
 
 const extractCode = (message) => {
-  if (message.includes("```")) {
+  if (message && message.includes("```")) {
     const codes = message.split("```");
     return codes;
   }
@@ -36,6 +37,7 @@ const isCode = (str) => {
 
 const ChatItem = ({ content, role }) => {
   const [copied, setCopied] = useState(false);
+  const language = detectLanguage(content);
   const messageBlock = extractCode(content);
 
   const handleCopy = async () => {
@@ -71,7 +73,7 @@ const ChatItem = ({ content, role }) => {
               <SyntaxHighlighter
                 className="rounded-lg code-block max-w-3xl overflow-x-scroll"
                 key={index}
-                language="javascript"
+                language={language}
                 style={nightOwl}
               >
                 {block}
@@ -90,32 +92,6 @@ const ChatItem = ({ content, role }) => {
         <div className="my-2">
           <Markdown>{content}</Markdown>
         </div>
-        {/* {messageBlock &&
-          messageBlock.map((block, index) => {
-            return isCode(block) ? (
-              <div key={index} className="relative mt-2">
-                <Button
-                  variant="ghost"
-                  onClick={handleCopy}
-                  className="absolute top-1 right-1 cursor-pointer text-white"
-                >
-                  <Copy className="w-4 h-4" />
-                </Button>
-                <SyntaxHighlighter
-                  className="rounded-lg code-block max-w-3xl overflow-x-scroll"
-                  key={index}
-                  language="javascript"
-                  style={nightOwl}
-                >
-                  {block}
-                </SyntaxHighlighter>
-              </div>
-            ) : (
-              <div key={index} className="mt-2">
-                <Markdown>{block}</Markdown>
-              </div>
-            );
-          })} */}
       </div>
     </div>
   );
