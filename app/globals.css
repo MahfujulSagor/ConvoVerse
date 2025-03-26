@@ -121,12 +121,6 @@
   }
 }
 
-/* /components/chat/ChatItem.js */
-.code-block {
-  scrollbar-color: #424242 transparent;
-}
-
-/* /dashboard/page.js */
-.ChatInput {
+* {
   scrollbar-color: #424242 transparent;
 }
