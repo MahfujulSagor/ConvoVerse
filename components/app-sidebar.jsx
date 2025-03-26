@@ -1,12 +1,22 @@
 "use client";
 
 import * as React from "react";
-import { Truck, Store, Settings2, LayoutDashboard, Database, Tag, UserRound } from "lucide-react";
+import {
+  Truck,
+  Settings2,
+  LayoutDashboard,
+  Database,
+  Tag,
+  UserRound,
+} from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 
-import OpenAI from "@/public/OpenAI-white.svg";
+import OpenAI from "@/public/chatgpt.svg";
+import Deepseek from "@/public/deepseek.svg";
+import Gemini from "@/public/gemini.svg";
+import Grok from "@/public/grok.svg";
 
 import {
   Sidebar,
@@ -17,7 +27,6 @@ import {
 import { AISwitcher } from "@/components/ai-switcher";
 
 export function AppSidebar({ ...props }) {
-
   const data = {
     user: {
       name: "User",
@@ -31,12 +40,18 @@ export function AppSidebar({ ...props }) {
       },
       {
         name: "Deepseek",
+        logo: Deepseek,
+      },
+      {
+        name: "Gemini",
+        logo: Gemini,
+      },
+      {
+        name: "Grok",
+        logo: Grok,
+      },
         logo: Store,
       },
-      // {
-      //   name: "Deepseek",
-      //   logo: Store,
-      // },
     ],
     navMain: [
       {
