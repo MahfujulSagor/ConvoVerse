@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronsUpDown } from "lucide-react";
 
 import {
@@ -17,12 +17,21 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import Image from "next/image";
+import { useAI } from "@/context/ai-context";
 
-export function AISwitcher({ AI }) {
+export function AISwitcher() {
   const { isMobile } = useSidebar();
-  const [activeAI, setActiveAI] = useState(AI[0]);
+  const { currentAI, setCurrentAI, AI } = useAI();
+  const [isClient, setIsClient] = useState(false);
 
-  if (!activeAI) {
+  //! This part can be improved with suspanse and lazy loading
+  // Ensure hydration only happens on the client
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Avoid hydration errors
+  if (!isClient || !currentAI) {
     return null;
   }
 
@@ -37,15 +46,15 @@ export function AISwitcher({ AI }) {
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground">
                 <Image
-                  src={activeAI.logo}
-                  alt={activeAI.name}
+                  src={currentAI.logo}
+                  alt={currentAI.name}
                   width={32}
                   height={32}
                   className="shrink-0"
                 />
               </div>
               <div className="grid flex-1 text-left text-lg leading-tight">
-                <span className="truncate font-semibold">{activeAI.name}</span>
+                <span className="truncate font-semibold">{currentAI.name}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -62,7 +71,9 @@ export function AISwitcher({ AI }) {
             {AI.map((ai) => (
               <DropdownMenuItem
                 key={ai.name}
-                onClick={() => setActiveAI(ai)}
+                onClick={() => {
+                  setCurrentAI(ai);
+                }}
                 className="gap-2 p-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-sm">

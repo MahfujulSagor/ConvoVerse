@@ -13,11 +13,6 @@ import {
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 
-import OpenAI from "@/public/chatgpt.svg";
-import Deepseek from "@/public/deepseek.svg";
-import Gemini from "@/public/gemini.svg";
-import Grok from "@/public/grok.svg";
-
 import {
   Sidebar,
   SidebarContent,
@@ -33,24 +28,6 @@ export function AppSidebar({ ...props }) {
       email: "user@gmail.com",
       avatar: UserRound,
     },
-    AI: [
-      {
-        name: "OpenAI",
-        logo: OpenAI,
-      },
-      {
-        name: "Deepseek",
-        logo: Deepseek,
-      },
-      {
-        name: "Gemini",
-        logo: Gemini,
-      },
-      {
-        name: "Grok",
-        logo: Grok,
-      },
-    ],
     navMain: [
       {
         title: "Dashboard",
@@ -83,7 +60,7 @@ export function AppSidebar({ ...props }) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <AISwitcher AI={data.AI} />
+        <AISwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
