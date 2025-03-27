@@ -2,7 +2,7 @@
 import ChatItem from "@/components/chat/ChatItem";
 import { Textarea } from "@/components/ui/textarea";
 import { Paperclip, SendHorizonal } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -16,8 +16,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { BeatLoader } from "react-spinners";
+import { useAI } from "@/context/ai-context";
+import { toast } from "sonner";
 
 const inputSchema = z.object({
+  ai: z.string(),
   message: z.string().nonempty("Message cannot be empty"),
   model: z.string(),
   role: z.string(),
@@ -44,18 +47,25 @@ const models = [
 ];
 
 const Dashboard = () => {
+  const { currentAI } = useAI();
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState([]); // ? Chat messages
+  const [messages, setMessages] = useState([]); // * Chat messages
 
   const { register, handleSubmit, reset, control, setValue } = useForm({
     resolver: zodResolver(inputSchema),
     defaultValues: {
+      ai: currentAI.name,
       message: "",
       model: "gpt-4o-mini",
       // ? Will be handled in the server
       role: "user",
     },
   });
+
+  // * Sync AI model with the form
+  useEffect(() => {
+    setValue("ai", currentAI.name);
+  }, [currentAI, setValue]);
 
   const deepseek = async (prompt) => {
     try {
@@ -68,7 +78,8 @@ const Dashboard = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "deepseek/deepseek-r1-distill-llama-70b:free", // ! Keep this in database
+            // model: "deepseek/deepseek-r1-distill-llama-70b:free",
+            model: "deepseek/deepseek-chat-v3-0324:free", // ! Better
             messages: [
               {
                 role: "user",
