@@ -124,3 +124,20 @@
 * {
   scrollbar-color: #424242 transparent;
 }
+
+.code-blocks {
+  li {
+    margin-top: 4px;
+  }
+
+  strong {
+    font-weight: 600;
+    font-size: larger;
+  }
+
+  h3 {
+    margin-top: 4px;
+    font-size: large;
+    font-weight: 600;
+  }
+}
