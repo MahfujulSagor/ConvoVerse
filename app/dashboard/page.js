@@ -69,27 +69,17 @@ const Dashboard = () => {
 
   const deepseek = async (prompt) => {
     try {
-      const response = await fetch(
-        "https://openrouter.ai/api/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            // model: "deepseek/deepseek-r1-distill-llama-70b:free",
-            model: "deepseek/deepseek-chat-v3-0324:free", // ! Better
-            messages: [
-              {
-                role: "user",
-                content: prompt,
-              },
-            ],
-          }),
-        }
-      );
-      const data = response.json();
+      const response = await fetch("/api/chat/deepseek", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: prompt,
+        }),
+      });
+
+      const data = await response.json();
       return data;
     } catch (error) {
       console.log(error);
@@ -194,7 +184,7 @@ const Dashboard = () => {
           </div>
           {/* Input */}
           <div className="w-full max-w-3xl bg-background pb-8 sticky bottom-0 flex justify-center items-center">
-            <div className="w-full min-h-20 rounded-2xl p-4 border">
+            <div className="w-full min-h-20 rounded-2xl p-4 border border-dashed">
               <div>
                 <div className="w-full flex justify-center items-center">
                   <Textarea
