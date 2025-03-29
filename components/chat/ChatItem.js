@@ -1,10 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { Button } from "../ui/button";
-import { Copy } from "lucide-react";
+import { Copy, CheckCheck } from "lucide-react";
 import { toast } from "sonner";
 import { detectLanguage } from "@/lib/detectLanguage";
 
@@ -36,16 +37,18 @@ const isCode = (str) => {
 };
 
 const ChatItem = ({ content, role }) => {
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState({});
   const language = detectLanguage(content);
   const messageBlock = extractCode(content);
 
-  const handleCopy = async () => {
+  const handleCodeCopy = async (code, index) => {
     try {
-      // await navigator.clipboard.writeText();
-      setCopied(true);
+      await navigator.clipboard.writeText(code);
+      setCopied((prev) => ({ ...prev, [index]: true }));
       toast.success("Code snippet copied to clipboard");
-      setTimeout(() => setCopied(false), 1500);
+      setTimeout(() => {
+        setCopied((prev) => ({ ...prev, [index]: false }));
+      }, 1500);
     } catch (error) {
       console.error(error);
       toast.error("Failed to copy code snippet");
@@ -56,7 +59,30 @@ const ChatItem = ({ content, role }) => {
     <div className="mb-6 md:text-base text-sm">
       {!messageBlock && (
         <div className="my-2">
-          <Markdown>{content}</Markdown>
+          <Markdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              table: ({ node, ...props }) => (
+                <div className="overflow-x-auto">
+                  <table
+                    className="table-auto border-collapse border w-full my-8"
+                    {...props}
+                  />
+                </div>
+              ),
+              th: ({ node, ...props }) => (
+                <th
+                  className="border bg-slate-800 px-3 py-2 text-left font-bold"
+                  {...props}
+                />
+              ),
+              td: ({ node, ...props }) => (
+                <td className="border px-3 py-2" {...props} />
+              ),
+            }}
+          >
+            {content}
+          </Markdown>
         </div>
       )}
       {messageBlock &&
@@ -65,10 +91,14 @@ const ChatItem = ({ content, role }) => {
             <div key={index} className="relative mt-2">
               <Button
                 variant="ghost"
-                onClick={handleCopy}
+                onClick={() => handleCodeCopy(block, index)}
                 className="absolute top-1 right-1 cursor-pointer text-white"
               >
-                <Copy className="w-4 h-4" />
+                {copied[index] ? (
+                  <CheckCheck className="w-4 h-4 text-teal-400" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
               </Button>
               <SyntaxHighlighter
                 className="rounded-lg code-block max-w-3xl overflow-x-scroll border border-dashed"
@@ -81,14 +111,37 @@ const ChatItem = ({ content, role }) => {
             </div>
           ) : (
             <div key={index} className="mt-2">
-              <Markdown>{block}</Markdown>
+              <Markdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  table: ({ node, ...props }) => (
+                    <div className="overflow-x-auto">
+                      <table
+                        className="table-auto border-collapse border w-full my-8"
+                        {...props}
+                      />
+                    </div>
+                  ),
+                  th: ({ node, ...props }) => (
+                    <th
+                      className="border bg-slate-800 px-3 py-2 text-left font-bold"
+                      {...props}
+                    />
+                  ),
+                  td: ({ node, ...props }) => (
+                    <td className="border px-3 py-2" {...props} />
+                  ),
+                }}
+              >
+                {block}
+              </Markdown>
             </div>
           );
         })}
     </div>
   ) : (
-    <div className="mb-6 w-full flex justify-end items-center md:text-base text-sm">
-      <div className="max-w-lg bg-secondary rounded-4xl py-2 px-5">
+    <div className="my-6 w-full flex justify-end items-center md:text-base text-sm">
+      <div className="max-w-3xl bg-secondary rounded-4xl px-5">
         <div className="my-2">
           <Markdown>{content}</Markdown>
         </div>
