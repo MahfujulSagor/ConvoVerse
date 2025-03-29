@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   Database,
   Tag,
-  UserRound,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -20,13 +19,16 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { AISwitcher } from "@/components/ai-switcher";
+import { useAppwrite } from "@/context/appwrite-context";
 
 export function AppSidebar({ ...props }) {
+  const {session} = useAppwrite();
+
   const data = {
     user: {
-      name: "User",
-      email: "user@gmail.com",
-      avatar: UserRound,
+      name: session?.name || "User",
+      email: session?.email || "user@gmail.com",
+      avatar: session?.avatar,
     },
     navMain: [
       {

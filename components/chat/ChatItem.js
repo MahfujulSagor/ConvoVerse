@@ -71,7 +71,7 @@ const ChatItem = ({ content, role }) => {
                 <Copy className="w-4 h-4" />
               </Button>
               <SyntaxHighlighter
-                className="rounded-lg code-block max-w-3xl overflow-x-scroll"
+                className="rounded-lg code-block max-w-3xl overflow-x-scroll border border-dashed"
                 key={index}
                 language={language}
                 style={nightOwl}

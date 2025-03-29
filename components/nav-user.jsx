@@ -1,6 +1,6 @@
 "use client";
 
-import { userRound, BadgeCheck, Bell, ChevronsUpDown, LogOut, UserRound } from "lucide-react";
+import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -18,12 +18,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-// import { useAppwrite } from "@/context/AppwriteContext";
+import { useAppwrite } from "@/context/appwrite-context";
 
 export function NavUser({ user }) {
   const { isMobile } = useSidebar();
-//   const { signOut } = useAppwrite();
-
+  const { signOut } = useAppwrite();
 
   return (
     <SidebarMenu>
@@ -79,7 +78,7 @@ export function NavUser({ user }) {
               <LogOut />
               <button
                 className="cursor-pointer text-start w-full"
-                // onClick={() => signOut()}
+                onClick={signOut}
               >
                 Log out
               </button>
