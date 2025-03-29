@@ -1,16 +1,17 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-export function middleware(req) {
-  const sessionToken = req.cookies.get("session_token");
+export async function middleware(req) {
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get("session_token")?.value;
 
   if (!sessionToken) {
-    return NextResponse.redirect(new URL("/get-started", req.url));
+    return NextResponse.redirect(new URL("/auth/get-started", req.url));
   }
 
   return NextResponse.next();
-};
+}
 
-// Apply middleware to protected routes
 export const config = {
-  matcher: ["/dashboard/:path*"], // Protect all /dashboard routes
+  matcher: ["/dashboard/:path*"],
 };

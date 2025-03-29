@@ -2,7 +2,7 @@
 import ChatItem from "@/components/chat/ChatItem";
 import { Textarea } from "@/components/ui/textarea";
 import { Paperclip, SendHorizonal } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/select";
 import { BeatLoader } from "react-spinners";
 import { useAI } from "@/context/ai-context";
-import { toast } from "sonner";
 
 const inputSchema = z.object({
   ai: z.string(),
@@ -50,6 +49,7 @@ const Dashboard = () => {
   const { currentAI } = useAI();
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]); // * Chat messages
+  const responseRef = useRef();
 
   const { register, handleSubmit, reset, control, setValue } = useForm({
     resolver: zodResolver(inputSchema),
@@ -57,7 +57,6 @@ const Dashboard = () => {
       ai: currentAI.name,
       message: "",
       model: "gpt-4o-mini",
-      // ? Will be handled in the server
       role: "user",
     },
   });
@@ -68,6 +67,7 @@ const Dashboard = () => {
   }, [currentAI, setValue]);
 
   const deepseek = async (prompt) => {
+    responseRef.current = "";
     try {
       const response = await fetch("/api/chat/deepseek", {
         method: "POST",
@@ -79,14 +79,61 @@ const Dashboard = () => {
         }),
       });
 
-      const data = await response.json();
-      return data;
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("Response body is not readable");
+      }
+      const decoder = new TextDecoder();
+      let buffer = "";
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          // Append new chunk to buffer
+          buffer += decoder.decode(value, { stream: true });
+          // Process complete lines from buffer
+          while (true) {
+            const lineEnd = buffer.indexOf("\n");
+            if (lineEnd === -1) break;
+            const line = buffer.slice(0, lineEnd).trim();
+            buffer = buffer.slice(lineEnd + 1);
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6);
+              if (data === "[DONE]") break;
+              try {
+                const parsed = JSON.parse(data);
+                const content = parsed.choices[0].delta.content;
+                if (content) {
+                  responseRef.current += content;
+                  // setMsg(responseRef.current);
+                  setMessages((prevMessages) => {
+                    const lastMessage = prevMessages[prevMessages.length - 1];
+                    if (lastMessage?.role === "assistant") {
+                      return [
+                        ...prevMessages.slice(0, -1),
+                        { ...lastMessage, content: responseRef.current },
+                      ];
+                    } else {
+                      return [...prevMessages, { role: "assistant", content }];
+                    }
+                  });
+                }
+              } catch (e) {
+                console.error("Streaming failed", e);
+              }
+            }
+          }
+        }
+      } catch {
+        console.error("Error while reading response:", error);
+      } finally {
+        reader.cancel();
+      }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
-  // TODO: Send user message to the server
   const onSubmit = async (data) => {
     setMessages((prevMessages) => [
       ...prevMessages,
@@ -96,20 +143,11 @@ const Dashboard = () => {
       },
     ]);
     try {
-      const res = await deepseek(data.message);
-      const aiMessage = res.choices[0].message.content;
-      const aiRole = res.choices[0].message.role;
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          content: aiMessage,
-          role: aiRole,
-        },
-      ]);
+      await deepseek(data.message);
+      reset();
     } catch (error) {
       console.log(error);
     }
-    reset();
   };
 
   // TODO: Check user balance
@@ -178,8 +216,12 @@ const Dashboard = () => {
         <div className="mr-8">
           {/* Chats */}
           <div className="min-h-screen code-blocks max-w-[700px] mx-auto mb-26">
-            {messages.map((msg, index) => (
-              <ChatItem key={index} content={msg.content} role={msg.role} />
+            {messages.map((message, index) => (
+              <ChatItem
+                key={index}
+                content={message.content}
+                role={message.role}
+              />
             ))}
           </div>
           {/* Input */}

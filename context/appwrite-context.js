@@ -48,7 +48,7 @@ export const AppwriteProvider = ({ children }) => {
     try {
       await account.deleteSession("current");
 
-      await fetch("/api/auth/logout", {
+      await fetch("/api/auth/sign-out", {
         method: "POST",
         credentials: "include",
       });

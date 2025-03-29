@@ -127,16 +127,24 @@
 
 .code-blocks {
   li {
-    margin-top: 4px;
+    margin-top: 6px;
+    list-style: disc;
+    list-style-position: inside;
+    padding-left: 12px;
+  }
+
+  p {
+    margin-top: 12px;
+    margin-bottom: 12px;
   }
 
   strong {
-    font-weight: 500;
+    font-weight: 600;
     font-size: large;
   }
 
   h3 {
-    margin-top: 4px;
+    margin-top: 12px;
     font-size: large;
     font-weight: 600;
   }

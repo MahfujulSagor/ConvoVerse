@@ -1,4 +1,3 @@
-import axios from "axios";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -20,30 +19,30 @@ export const POST = async (req) => {
   }
 
   try {
-    const response = await axios.post(
-      process.env.DEEPSEEK_BASE_URL,
-      {
-        model: "deepseek/deepseek-chat-v3-0324:free", //! Replace with the model from client
+    const response = await fetch(process.env.DEEPSEEK_BASE_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "deepseek/deepseek-chat-v3-0324:free",
         messages: [
           {
             role: "user",
             content: prompt,
           },
         ],
+        stream: true,
+      }),
+    });
+
+    return new Response(response.body, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
       },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
-          "Content-Type": "application/json",
-          // "HTTP-Referer": "website.com", //! Replace with the domain
-        },
-      }
-    );
-
-    const data = response.data;
-
-    return NextResponse.json(data, {
-      status: 200,
     });
   } catch (error) {
     console.log(error);
