@@ -11,7 +11,6 @@ export default function OAuthCallback() {
       try {
         // Fetch user session
         const session = await account.get();
-        console.log("User session:", session);
 
         // Send session token to backend to store in HTTP-only cookie
         await fetch("/api/auth/store-session", {
