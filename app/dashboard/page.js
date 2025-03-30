@@ -1,7 +1,7 @@
 "use client";
 import ChatItem from "@/components/chat/ChatItem";
 import { Textarea } from "@/components/ui/textarea";
-import { Paperclip, SendHorizonal } from "lucide-react";
+import { ArrowDown, Paperclip, SendHorizonal } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -157,6 +157,7 @@ const Dashboard = () => {
       setLoading(false);
     }, 1000);
   };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
       {/* Navbar */}
@@ -212,17 +213,19 @@ const Dashboard = () => {
           )}
         </Button>
       </div>
-      <div className="max-w-3xl w-full mx-auto relative mt-26 min-h-screen">
+      <div className="max-w-3xl w-full mx-auto relative min-h-screen">
         <div className="mr-8">
           {/* Chats */}
-          <div className="min-h-screen code-blocks max-w-[700px] mx-auto mb-26">
-            {messages.map((message, index) => (
-              <ChatItem
-                key={index}
-                content={message.content}
-                role={message.role}
-              />
-            ))}
+          <div className="overflow-y-auto">
+            <div className="min-h-[80vh] code-blocks max-w-[700px] mx-auto mb-20">
+              {messages.map((message, index) => (
+                <ChatItem
+                  key={index}
+                  content={message.content}
+                  role={message.role}
+                />
+              ))}
+            </div>
           </div>
           {/* Input */}
           <div className="w-full max-w-3xl bg-background pb-8 sticky bottom-0 flex justify-center items-center">
@@ -248,9 +251,9 @@ const Dashboard = () => {
                     {/* <Button
                       variant="ghost"
                       className="cursor-pointer flex justify-center items-center text-[#676767]"
-                    >
+                      >
                       <Paperclip className="size-5" />
-                    </Button> */}
+                      </Button> */}
                   </div>
                   <div>
                     <Button

@@ -19,7 +19,6 @@
     "@radix-ui/react-separator": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
-    "ai": "^4.2.5",
     "appwrite": "^17.0.1",
     "axios": "^1.8.4",
     "class-variance-authority": "^0.7.1",
@@ -45,6 +44,7 @@
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.2.3",
+    "prettier": "^3.5.3",
     "tailwindcss": "^4"
   }
 }

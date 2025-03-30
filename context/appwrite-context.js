@@ -17,8 +17,10 @@ export const AppwriteProvider = ({ children }) => {
   const [session, setSession] = useState(null);
 
   useEffect(() => {
-    getSession();
-  }, []);
+    if (!session) {
+      getSession();
+    }
+  }, [session]);
 
   //* Sign in with Google
   const signIn = async () => {
@@ -35,9 +37,28 @@ export const AppwriteProvider = ({ children }) => {
   //* Get current session
   const getSession = async () => {
     try {
+      // Check if avatar URL is already stored in localStorage
+      const storedAvatar = localStorage.getItem("avatarUrl");
+      if (storedAvatar) {
+        setSession((prevSession) => {
+          return { ...prevSession, avatar: storedAvatar }; // Set from localStorage
+        });
+        return; // Exit early if avatar is found in localStorage
+      }
+
+      // Fetch the session data
       const sessionData = await account.get();
+
+      // Generate avatar if not found in localStorage
       const avatarUrl = avatars.getInitials(sessionData.name);
-      setSession({ ...sessionData, avatar: avatarUrl });
+
+      // Store avatar URL in localStorage
+      localStorage.setItem("avatarUrl", avatarUrl);
+
+      // Set session state with avatar URL
+      setSession((prevSession) => {
+        return { ...sessionData, avatar: avatarUrl };
+      });
     } catch (error) {
       console.error("Error fetching session:", error);
     }
@@ -47,6 +68,8 @@ export const AppwriteProvider = ({ children }) => {
   const signOut = async () => {
     try {
       await account.deleteSession("current");
+
+      localStorage.removeItem("avatarUrl");
 
       await fetch("/api/auth/sign-out", {
         method: "POST",
