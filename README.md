@@ -10,7 +10,6 @@ Chat AI is an advanced AI-powered chat platform that allows users to interact wi
 - **Low-Cost Access**: Provides affordable AI model usage.
 - **Authentication**: Secure OAuth authentication via Appwrite.
 - **Appwrite Database**: Uses Appwrite for storing user data and managing access.
-- **Admin Panel**: Enables admins to view users, manage AI usage, and control access.
 - **Modern UI**: Chat bubble-style interface for an intuitive experience.
 
 ## Technologies Used
@@ -23,4 +22,3 @@ Chat AI is an advanced AI-powered chat platform that allows users to interact wi
 
 - Register or log in using OAuth authentication.
 - Choose from multiple AI models for chat interactions.
-- Admins can manage user permissions and access via the admin panel.
