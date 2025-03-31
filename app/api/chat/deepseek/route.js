@@ -19,10 +19,10 @@ export const POST = async (req) => {
   }
 
   try {
-    const response = await fetch(process.env.DEEPSEEK_BASE_URL, {
+    const response = await fetch(process.env.OPENROUTER_BASE_URL, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
