@@ -17,17 +17,16 @@ export const AppwriteProvider = ({ children }) => {
   const [session, setSession] = useState(null);
 
   useEffect(() => {
-    if (!session) {
-      getSession();
-    }
-  }, [session]);
+    getSession();
+  }, []);
 
   //* Sign in with Google
   const signIn = async () => {
     try {
       account.createOAuth2Session(
         OAuthProvider.Google,
-        `http://localhost:3000/auth/callback`
+        `http://localhost:3000/auth/callback`,
+        "http://localhost:3000/auth/get-started",
       );
     } catch (error) {
       console.error("Error signing in:", error);
@@ -37,30 +36,32 @@ export const AppwriteProvider = ({ children }) => {
   //* Get current session
   const getSession = async () => {
     try {
-      // Check if avatar URL is already stored in localStorage
       const storedAvatar = localStorage.getItem("avatarUrl");
-      if (storedAvatar) {
-        setSession((prevSession) => {
-          return { ...prevSession, avatar: storedAvatar }; // Set from localStorage
-        });
-        return; // Exit early if avatar is found in localStorage
-      }
 
-      // Fetch the session data
       const sessionData = await account.get();
 
-      // Generate avatar if not found in localStorage
-      const avatarUrl = avatars.getInitials(sessionData.name);
+      if (storedAvatar) {
+        setSession((prevSession) => ({
+          ...sessionData,
+          avatar: storedAvatar,
+        }));
+        return;
+      }
 
-      // Store avatar URL in localStorage
+      const avatarUrl = avatars.getInitials(sessionData.name || "User");
       localStorage.setItem("avatarUrl", avatarUrl);
 
-      // Set session state with avatar URL
-      setSession((prevSession) => {
-        return { ...sessionData, avatar: avatarUrl };
-      });
+      setSession((prevSession) => ({
+        ...sessionData,
+        avatar: avatarUrl,
+      }));
     } catch (error) {
-      console.error("Error fetching session:", error);
+      if (error.message.includes("missing scope (account)")) {
+        console.warn("Guest user detected.");
+      } else {
+        console.error("Error fetching session:", error);
+      }
+      setSession(null);
     }
   };
 

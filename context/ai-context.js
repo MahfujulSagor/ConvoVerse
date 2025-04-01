@@ -4,7 +4,6 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import OpenAI from "@/public/openai.svg";
 import Deepseek from "@/public/deepseek.svg";
 import Gemini from "@/public/gemini.svg";
-import Grok from "@/public/grok.svg";
 
 const AIContext = createContext(null);
 
@@ -17,22 +16,26 @@ export const useAI = () => {
 };
 
 const AI = [
-  {
-    name: "OpenAI",
-    logo: OpenAI,
-  },
+  // {
+  //   name: "OpenAI",
+  //   logo: OpenAI,
+  //   organization: 'openai',
+  // },
   {
     name: "Deepseek",
     logo: Deepseek,
+    organization: 'deepseek',
   },
-  {
-    name: "Gemini",
-    logo: Gemini,
-  },
-  {
-    name: "Grok",
-    logo: Grok,
-  },
+  // {
+  //   name: "Gemini",
+  //   logo: Gemini,
+  //   organization: 'gemini',
+  // },
+  // {
+  //   name: "Grok",
+  //   logo: Grok,
+  //   organization: 'grok',
+  // },
 ];
 
 export const AIProvider = ({ children }) => {

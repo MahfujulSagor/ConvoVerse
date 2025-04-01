@@ -19,63 +19,93 @@ import { BeatLoader } from "react-spinners";
 import { useAI } from "@/context/ai-context";
 
 const inputSchema = z.object({
-  ai: z.string(),
   message: z.string().nonempty("Message cannot be empty"),
-  model: z.string(),
+  model_id: z.string(),
   role: z.string(),
 });
-
-// ! This should be fetched from the server
-const models = [
-  {
-    id: "o1",
-    name: "o1",
-  },
-  {
-    id: "o1-mini",
-    name: "o1-mini",
-  },
-  {
-    id: "gpt-4o",
-    name: "gpt-4o",
-  },
-  {
-    id: "gpt-4o-mini",
-    name: "gpt-4o-mini",
-  },
-];
 
 const Dashboard = () => {
   const { currentAI } = useAI();
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]); // * Chat messages
+  const [models, setModels] = useState([]); // * Models
   const responseRef = useRef();
 
-  const { register, handleSubmit, reset, control, setValue } = useForm({
+  const { register, handleSubmit, resetField, control, setValue } = useForm({
     resolver: zodResolver(inputSchema),
     defaultValues: {
-      ai: currentAI.name,
       message: "",
-      model: "gpt-4o-mini",
+      model_id: "",
       role: "user",
     },
   });
 
-  // * Sync AI model with the form
   useEffect(() => {
-    setValue("ai", currentAI.name);
+    const fetchModels = async () => {
+      try {
+        const response = await fetch(
+          `/api/ai/models/${currentAI.organization}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch models: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        setModels(data);
+
+        setValue("model_id", data[0]?.$id || "");
+
+        localStorage.setItem("models", JSON.stringify(data));
+      } catch (error) {
+        console.error("Error fetching models:", error);
+      }
+    };
+
+    const initializeModels = () => {
+      try {
+        const storedModels = localStorage.getItem("models");
+
+        const parsedModels = storedModels ? JSON.parse(storedModels) : [];
+
+        if (
+          parsedModels &&
+          parsedModels.length > 0 &&
+          parsedModels[0]?.name === currentAI.organization
+        ) {
+          setModels(parsedModels);
+
+          setValue("model_id", parsedModels[0]?.$id || "");
+        } else {
+          fetchModels();
+        }
+      } catch (error) {
+        console.error("Error initializing models:", error);
+      }
+    };
+
+    // * Initialize models
+    initializeModels();
   }, [currentAI, setValue]);
 
-  const deepseek = async (prompt) => {
+  const deepseek = async ({ message, model_id }) => {
     responseRef.current = "";
     try {
-      const response = await fetch("/api/chat/deepseek", {
+      const response = await fetch(`/api/chat/${currentAI.organization}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          prompt: prompt,
+          prompt: message,
+          model_id: model_id,
         }),
       });
 
@@ -105,7 +135,6 @@ const Dashboard = () => {
                 const content = parsed.choices[0].delta.content;
                 if (content) {
                   responseRef.current += content;
-                  // setMsg(responseRef.current);
                   setMessages((prevMessages) => {
                     const lastMessage = prevMessages[prevMessages.length - 1];
                     if (lastMessage?.role === "assistant") {
@@ -142,9 +171,14 @@ const Dashboard = () => {
         role: data.role,
       },
     ]);
+
+    const selectedModel = models.find((model) => model.$id === data.model_id);
+    if (!selectedModel) return console.error("Invalid model selected");
+    const model_id = selectedModel?.$id || "";
+
     try {
-      await deepseek(data.message);
-      reset();
+      resetField("message");
+      await deepseek({ ...data, model_id: model_id });
     } catch (error) {
       console.log(error);
     }
@@ -165,7 +199,7 @@ const Dashboard = () => {
         {/* Model selector */}
         <div className="flex justify-between items-center py-4 px-2">
           <Controller
-            name="model"
+            name="model_id"
             control={control}
             render={({ field }) => (
               <Select
@@ -179,14 +213,18 @@ const Dashboard = () => {
                 <SelectContent>
                   <SelectGroup>
                     {models.length > 0 ? (
-                      models.map((model) => (
-                        <SelectItem key={model.id} value={model.name}>
-                          {model.name}
+                      models.map((model, index) => (
+                        <SelectItem key={index} value={model.$id}>
+                          {model.display_name}
                         </SelectItem>
                       ))
                     ) : (
-                      <SelectItem disabled value="Loading">
-                        Loading...
+                      <SelectItem
+                        disabled
+                        value="Loading"
+                        className="flex justify-center items-center"
+                      >
+                        <BeatLoader color="oklch(0.985 0 0)" />
                       </SelectItem>
                     )}
                   </SelectGroup>

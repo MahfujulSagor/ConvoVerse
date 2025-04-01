@@ -26,8 +26,8 @@ export function AppSidebar({ ...props }) {
 
   const data = {
     user: {
-      name: session?.name || "User",
-      email: session?.email || "user@gmail.com",
+      name: session?.name,
+      email: session?.email,
       avatar: session?.avatar,
     },
     navMain: [

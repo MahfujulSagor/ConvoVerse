@@ -35,7 +35,7 @@ const Landing = () => {
       </div>
 
       <div>
-        <Button className="mb-6" onClick={() => router.push("/auth/get-started")}>
+        <Button className="mb-6 cursor-pointer" onClick={() => router.push("/auth/get-started")}>
           Get Started
         </Button>
       </div>
