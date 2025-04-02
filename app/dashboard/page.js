@@ -98,7 +98,7 @@ const Dashboard = () => {
   const aiChat = async ({ message, model_id }) => {
     responseRef.current = "";
     try {
-      const response = await fetch(`/api/chat/deepseek`, {
+      const response = await fetch(`/api/chat/ai`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
