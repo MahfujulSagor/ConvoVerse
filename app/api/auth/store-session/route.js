@@ -16,8 +16,8 @@ export async function POST(req) {
     // Set HTTP-only cookie
     cookieStore.set("session_token", sessionToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
+      secure: true,
+      sameSite: "lax",
       path: "/",
     });
 

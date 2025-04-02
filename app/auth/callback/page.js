@@ -26,7 +26,7 @@ export default function OAuthCallback() {
         router.push("/dashboard");
       } catch (error) {
         console.error("Error fetching session:", error);
-        router.push("/get-started");
+        router.push("/auth/get-started");
       }
     }
 
