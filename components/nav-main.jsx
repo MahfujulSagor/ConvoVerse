@@ -7,6 +7,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { History } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -17,13 +18,13 @@ export function NavMain({ items }) {
     <SidebarGroup>
       <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => {
+        {items.map((item, index) => {
           const isActive = pathname === item.url;
           return (
-            <SidebarMenuItem key={item.title}>
+            <SidebarMenuItem key={index}>
               <Link href={item.url}>
                 <SidebarMenuButton tooltip={item.title} isActive={isActive}>
-                  {item.icon && <item.icon />}
+                  <History/>
                   <span>{item.title}</span>
                 </SidebarMenuButton>
               </Link>
