@@ -26,11 +26,11 @@ const AI = [
     logo: Deepseek,
     organization: 'deepseek',
   },
-  // {
-  //   name: "Gemini",
-  //   logo: Gemini,
-  //   organization: 'gemini',
-  // },
+  {
+    name: "Gemini",
+    logo: Gemini,
+    organization: 'gemini',
+  },
   // {
   //   name: "Grok",
   //   logo: Grok,
