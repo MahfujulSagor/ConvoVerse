@@ -95,7 +95,7 @@ const Dashboard = () => {
     initializeModels();
   }, [currentAI, setValue]);
 
-  const deepseek = async ({ message, model_id }) => {
+  const aiChat = async ({ message, model_id }) => {
     responseRef.current = "";
     try {
       const response = await fetch(`/api/chat/${currentAI.organization}`, {
@@ -178,7 +178,7 @@ const Dashboard = () => {
 
     try {
       resetField("message");
-      await deepseek({ ...data, model_id: model_id });
+      await aiChat({ ...data, model_id: model_id });
     } catch (error) {
       console.log(error);
     }
