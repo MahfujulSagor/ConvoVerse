@@ -98,7 +98,7 @@ const Dashboard = () => {
   const aiChat = async ({ message, model_id }) => {
     responseRef.current = "";
     try {
-      const response = await fetch(`/api/chat/${currentAI.organization}`, {
+      const response = await fetch(`/api/chat/deepseek`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -129,31 +129,61 @@ const Dashboard = () => {
             buffer = buffer.slice(lineEnd + 1);
             if (line.startsWith("data: ")) {
               const data = line.slice(6);
-              if (data === "[DONE]") break;
+              if (data === "[DONE]") {
+                console.log("Streaming complete.");
+                return;
+              }
               try {
                 const parsed = JSON.parse(data);
-                const content = parsed.choices[0].delta.content;
-                if (content) {
-                  responseRef.current += content;
-                  setMessages((prevMessages) => {
-                    const lastMessage = prevMessages[prevMessages.length - 1];
-                    if (lastMessage?.role === "assistant") {
-                      return [
-                        ...prevMessages.slice(0, -1),
-                        { ...lastMessage, content: responseRef.current },
-                      ];
-                    } else {
-                      return [...prevMessages, { role: "assistant", content }];
-                    }
-                  });
+
+                if (parsed?.error?.code === 429) {
+                  console.error("Quota exceeded. Please try again later.");
+                  setMessages((prevMessages) => [
+                    ...prevMessages,
+                    {
+                      role: "system",
+                      content:
+                        "The system is currently unavailable due to high demand. Please try again later.",
+                    },
+                  ]);
+                  return;
                 }
+
+                if (
+                  !parsed?.choices ||
+                  !Array.isArray(parsed.choices) ||
+                  parsed.choices.length === 0
+                ) {
+                  console.error("Invalid AI response format:", parsed);
+                  continue;
+                }
+
+                const content = parsed.choices[0]?.delta.content || "";
+
+                if (!content) {
+                  console.warn("No content found in response");
+                  continue;
+                }
+
+                responseRef.current += content;
+                setMessages((prevMessages) => {
+                  const lastMessage = prevMessages[prevMessages.length - 1];
+                  if (lastMessage?.role === "assistant") {
+                    return [
+                      ...prevMessages.slice(0, -1),
+                      { ...lastMessage, content: responseRef.current },
+                    ];
+                  } else {
+                    return [...prevMessages, { role: "assistant", content }];
+                  }
+                });
               } catch (e) {
                 console.error("Streaming failed", e);
               }
             }
           }
         }
-      } catch {
+      } catch (error) {
         console.error("Error while reading response:", error);
       } finally {
         reader.cancel();
