@@ -141,7 +141,7 @@ const Dashboard = () => {
                   setMessages((prevMessages) => [
                     ...prevMessages,
                     {
-                      role: "system",
+                      role: "assistant",
                       content:
                         "The system is currently unavailable due to high demand. Please try again later.",
                     },
