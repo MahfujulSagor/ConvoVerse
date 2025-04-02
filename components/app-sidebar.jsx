@@ -1,13 +1,6 @@
 "use client";
 
 import * as React from "react";
-import {
-  Truck,
-  Settings2,
-  LayoutDashboard,
-  Database,
-  Tag,
-} from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -20,9 +13,10 @@ import {
 } from "@/components/ui/sidebar";
 import { AISwitcher } from "@/components/ai-switcher";
 import { useAppwrite } from "@/context/appwrite-context";
+import { NavNewChat } from "./nav-NewChat";
 
 export function AppSidebar({ ...props }) {
-  const {session} = useAppwrite();
+  const { session } = useAppwrite();
 
   const data = {
     user: {
@@ -32,29 +26,144 @@ export function AppSidebar({ ...props }) {
     },
     navMain: [
       {
-        title: "Dashboard",
+        title: "Form in next.js",
         url: "#",
-        icon: LayoutDashboard,
       },
       {
-        title: "Products",
+        title: "For loop in python",
         url: "#",
-        icon: Database,
       },
       {
-        title: "Categories",
+        title: "If statement in javascript",
         url: "#",
-        icon: Tag,
       },
       {
-        title: "Orders",
+        title: "For loop in javascript",
         url: "#",
-        icon: Truck,
       },
       {
-        title: "Settings",
+        title: "If statement in python",
         url: "#",
-        icon: Settings2,
+      },
+      {
+        title: "Form in next.js",
+        url: "#",
+      },
+      {
+        title: "For loop in python",
+        url: "#",
+      },
+      {
+        title: "If statement in javascript",
+        url: "#",
+      },
+      {
+        title: "For loop in javascript",
+        url: "#",
+      },
+      {
+        title: "If statement in python",
+        url: "#",
+      },
+      {
+        title: "Form in next.js",
+        url: "#",
+      },
+      {
+        title: "For loop in python",
+        url: "#",
+      },
+      {
+        title: "If statement in javascript",
+        url: "#",
+      },
+      {
+        title: "For loop in javascript",
+        url: "#",
+      },
+      {
+        title: "If statement in python",
+        url: "#",
+      },
+      {
+        title: "Form in next.js",
+        url: "#",
+      },
+      {
+        title: "For loop in python",
+        url: "#",
+      },
+      {
+        title: "If statement in javascript",
+        url: "#",
+      },
+      {
+        title: "For loop in javascript",
+        url: "#",
+      },
+      {
+        title: "If statement in python",
+        url: "#",
+      },
+      {
+        title: "Form in next.js",
+        url: "#",
+      },
+      {
+        title: "For loop in python",
+        url: "#",
+      },
+      {
+        title: "If statement in javascript",
+        url: "#",
+      },
+      {
+        title: "For loop in javascript",
+        url: "#",
+      },
+      {
+        title: "If statement in python",
+        url: "#",
+      },
+      {
+        title: "Form in next.js",
+        url: "#",
+      },
+      {
+        title: "For loop in python",
+        url: "#",
+      },
+      {
+        title: "If statement in javascript",
+        url: "#",
+      },
+      {
+        title: "For loop in javascript",
+        url: "#",
+      },
+      {
+        title: "If statement in python",
+        url: "#",
+      },
+      {
+        title: "Form in next.js",
+        url: "#",
+      },
+      {
+        title: "For loop in python",
+        url: "#",
+      },
+      {
+        title: "If statement in javascript",
+        url: "#",
+      },
+      {
+        title: "For loop in javascript",
+        url: "#",
+      },
+      {
+        title: "If statement in python",
+        url: "#",
       },
     ],
   };
@@ -65,6 +174,7 @@ export function AppSidebar({ ...props }) {
         <AISwitcher />
       </SidebarHeader>
       <SidebarContent>
+        <NavNewChat />
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>

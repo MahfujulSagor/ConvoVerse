@@ -21,7 +21,7 @@ export default function RootLayout({ children }) {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarTrigger className="sticky top-5" />
+      <SidebarTrigger className="sticky top-5 ml-2" />
       {children}
     </SidebarProvider>
   );
