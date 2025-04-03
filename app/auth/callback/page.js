@@ -13,8 +13,12 @@ export default function OAuthCallback() {
         const jwt = await account.createJWT();
         if (!jwt || !jwt.jwt) throw new Error("Failed to generate JWT");
 
+        if (!session) {
+          throw new Error("No active session.");
+        }
+
         // Send session token to backend to store in HTTP-only cookie
-        await fetch("/api/auth/store-session", {
+        const response = await fetch("/api/auth/store-session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -22,6 +26,10 @@ export default function OAuthCallback() {
           }),
           credentials: "include", // Ensures cookies are sent
         });
+
+        if (!response.ok) {
+          throw new Error(`Server Error: ${response.statusText}`);
+        }
 
         // Redirect to dashboard after login
         router.push("/dashboard");
