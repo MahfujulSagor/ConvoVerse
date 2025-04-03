@@ -17,7 +17,7 @@ export async function POST(req) {
     cookieStore.set("session_token", sessionToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "lax",
+      sameSite: "Strict",
       path: "/",
     });
 

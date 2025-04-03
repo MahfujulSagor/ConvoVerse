@@ -1,5 +1,6 @@
 "use client";
 import { account, avatars } from "@/lib/appwrite";
+import { getUser } from "@/lib/getUser";
 import { OAuthProvider } from "appwrite";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -26,7 +27,7 @@ export const AppwriteProvider = ({ children }) => {
       account.createOAuth2Session(
         OAuthProvider.Google,
         `http://localhost:3000/auth/callback`,
-        "http://localhost:3000/auth/get-started",
+        "http://localhost:3000/auth/get-started"
       );
     } catch (error) {
       console.error("Error signing in:", error);
@@ -35,19 +36,24 @@ export const AppwriteProvider = ({ children }) => {
 
   //* Get current session
   const getSession = async () => {
+    const storedAvatar = localStorage.getItem("avatarUrl");
+
+    const sessionData = await getUser();
+
+    if (!sessionData) {
+      setSession(null);
+      return;
+    }
+
+    if (storedAvatar) {
+      setSession((prevSession) => ({
+        ...sessionData,
+        avatar: storedAvatar,
+      }));
+      return;
+    }
+
     try {
-      const storedAvatar = localStorage.getItem("avatarUrl");
-
-      const sessionData = await account.get();
-
-      if (storedAvatar) {
-        setSession((prevSession) => ({
-          ...sessionData,
-          avatar: storedAvatar,
-        }));
-        return;
-      }
-
       const avatarUrl = avatars.getInitials(sessionData.name || "User");
       localStorage.setItem("avatarUrl", avatarUrl);
 
