@@ -316,12 +316,12 @@ const Dashboard = () => {
                 <div className="w-full flex justify-between items-center mt-2">
                   <div>
                     {/* FIXME: This should be a file input  */}
-                    {/* <Button
+                    <Button
                       variant="ghost"
                       className="cursor-pointer flex justify-center items-center text-[#676767]"
                       >
                       <Paperclip className="size-5" />
-                      </Button> */}
+                      </Button>
                   </div>
                   <div>
                     <Button
