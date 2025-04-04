@@ -83,6 +83,7 @@ export const AppwriteProvider = ({ children }) => {
         credentials: "include",
       });
 
+      localStorage.removeItem("auth_token");
       setSession(null);
 
       window.location.href = "/";

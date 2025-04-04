@@ -9,16 +9,16 @@ export default function OAuthCallback() {
   useEffect(() => {
     async function fetchSession() {
       try {
-        // Create jwt token
-        const jwt = await account.createJWT();
-        if (!jwt || !jwt.jwt) throw new Error("Failed to generate JWT");
+        const session = await account.getSession("current");
+
+        const token = session.providerAccessToken;
 
         // Send jwt token to backend to store in HTTP-only cookie
         const response = await fetch("/api/auth/store-session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            sessionToken: jwt.jwt,
+            sessionToken: token,
           }),
           credentials: "include", // Ensures cookies are sent
         });
@@ -26,6 +26,8 @@ export default function OAuthCallback() {
         if (!response.ok) {
           throw new Error(`Server Error: ${response.statusText}`);
         }
+
+        localStorage.setItem("auth_token", token); 
 
         // Redirect to dashboard after login
         router.push("/dashboard");

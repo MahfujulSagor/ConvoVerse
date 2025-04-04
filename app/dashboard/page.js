@@ -211,6 +211,7 @@ const Dashboard = () => {
       await aiChat({ ...data, model_id: model_id });
     } catch (error) {
       console.log(error);
+      resetField("message");
     }
   };
 
@@ -319,9 +320,9 @@ const Dashboard = () => {
                     <Button
                       variant="ghost"
                       className="cursor-pointer flex justify-center items-center text-[#676767]"
-                      >
+                    >
                       <Paperclip className="size-5" />
-                      </Button>
+                    </Button>
                   </div>
                   <div>
                     <Button
