@@ -37,15 +37,16 @@ const Dashboard = () => {
 
   const responseRef = useRef();
 
-  const { register, handleSubmit, resetField, control, setValue, getValues } = useForm({
-    resolver: zodResolver(inputSchema),
-    defaultValues: {
-      message: "",
-      model_id: "",
-      files: [],
-      role: "user",
-    },
-  });
+  const { register, handleSubmit, resetField, control, setValue, getValues } =
+    useForm({
+      resolver: zodResolver(inputSchema),
+      defaultValues: {
+        message: "",
+        model_id: "",
+        files: [],
+        role: "user",
+      },
+    });
 
   useEffect(() => {
     const fetchModels = async () => {
