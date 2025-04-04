@@ -1,6 +1,5 @@
 "use client";
 import { account, avatars } from "@/lib/appwrite";
-import { getUser } from "@/lib/getUser";
 import { OAuthProvider } from "appwrite";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -38,26 +37,26 @@ export const AppwriteProvider = ({ children }) => {
   const getSession = async () => {
     const storedAvatar = localStorage.getItem("avatarUrl");
 
-    const sessionData = await getUser();
-
-    if (!sessionData) {
-      setSession(null);
-      return;
-    }
-
-    if (storedAvatar) {
-      setSession((prevSession) => ({
-        ...sessionData,
-        avatar: storedAvatar,
-      }));
-      return;
-    }
-
     try {
+      const sessionData = await account.get();
+
+      if (!sessionData) {
+        setSession(null);
+        return;
+      }
+
+      if (storedAvatar) {
+        setSession(() => ({
+          ...sessionData,
+          avatar: storedAvatar,
+        }));
+        return;
+      }
+
       const avatarUrl = avatars.getInitials(sessionData.name || "User");
       localStorage.setItem("avatarUrl", avatarUrl);
 
-      setSession((prevSession) => ({
+      setSession(() => ({
         ...sessionData,
         avatar: avatarUrl,
       }));
