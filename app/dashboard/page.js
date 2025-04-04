@@ -204,28 +204,53 @@ const Dashboard = () => {
   };
 
   const handleFileChange = async (e) => {
-    const files = Array.from(e.target.files);
+    try {
+      const files = Array.from(e.target.files);
 
-    //* Create blob URLs for each file
-    const urls = files.map((file) => URL.createObjectURL(file));
-    if (!files.length) return;
+      if (!files.length) {
+        toast.warning("No files selected");
+        return;
+      }
 
-    //* Store original files for uploading
-    const existingFiles = Array.isArray(getValues("files"))
-      ? getValues("files")
-      : [];
-    const newFiles = [...existingFiles, ...urls];
+      //* Create blob URLs for each file
+      const urls = files.map((file) => URL.createObjectURL(file));
 
-    //* Check if image limit is reached
-    if (newFiles.length > 3) {
-      toast.error("You can upload a maximum of 3 files.");
+      //* Store original files for uploading
+      const existingFiles = Array.isArray(getValues("files"))
+        ? getValues("files")
+        : [];
+      const newFiles = [...existingFiles, ...urls];
+
+      //* Check if image limit is reached
+      if (newFiles.length > 3) {
+        toast.warning("You can upload a maximum of 3 files.");
+        return;
+      }
+
+      setValue("files", newFiles);
+      setSelectedFiles(newFiles);
+
+      toast.success(`${files.length} file(s) selected`);
+    } catch (error) {
+      console.error("Error selecting files:", error);
+      toast.error("Error selecting files");
       return;
     }
+  };
 
-    setValue("files", newFiles);
-    setSelectedFiles(() => [...newFiles]);
+  const handleFileRemove = (index) => {
+    try {
+      const files = getValues("files");
+      const updatedFiles = files.filter((_, i) => i !== index);
+      setValue("files", updatedFiles);
+      setSelectedFiles(updatedFiles);
 
-    toast.success(`${files.length} file(s) selected`);
+      toast.warning(`File removed`);
+    } catch (error) {
+      console.error("Error removing file:", error);
+      toast.error("Error removing file");
+      return;
+    }
   };
 
   const onSubmit = async (data) => {
@@ -350,12 +375,13 @@ const Dashboard = () => {
                         />
                         <button
                           type="button"
-                          onClick={() => {
-                            setValue(
-                              "files",
-                              getValues("files").filter((_, i) => i !== index)
-                            );
-                          }}
+                          // onClick={() => {
+                          //   setValue(
+                          //     "files",
+                          //     getValues("files").filter((_, i) => i !== index)
+                          //   );
+                          // }}
+                          onClick={() => handleFileRemove(index)}
                           className="absolute top-1 right-1 cursor-pointer p-1 rounded-2xl bg-secondary hover:bg-secondary/50 ease-in-out duration-100"
                         >
                           <X className="size-4" />
