@@ -1,7 +1,7 @@
 "use client";
 import ChatItem from "@/components/chat/ChatItem";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowDown, Paperclip, SendHorizonal } from "lucide-react";
+import { ArrowDown, Paperclip, SendHorizonal, X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -17,10 +17,14 @@ import {
 } from "@/components/ui/select";
 import { BeatLoader } from "react-spinners";
 import { useAI } from "@/context/ai-context";
+import Image from "next/image";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 const inputSchema = z.object({
   message: z.string().nonempty("Message cannot be empty"),
   model_id: z.string(),
+  files: z.array(z.instanceof(File)).optional(),
   role: z.string(),
 });
 
@@ -29,13 +33,16 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]); // * Chat messages
   const [models, setModels] = useState([]); // * Models
+  const [selectedFiles, setSelectedFiles] = useState([]); // * Selected files
+
   const responseRef = useRef();
 
-  const { register, handleSubmit, resetField, control, setValue } = useForm({
+  const { register, handleSubmit, resetField, control, setValue, getValues } = useForm({
     resolver: zodResolver(inputSchema),
     defaultValues: {
       message: "",
       model_id: "",
+      files: [],
       role: "user",
     },
   });
@@ -62,6 +69,8 @@ const Dashboard = () => {
         setModels(data);
 
         setValue("model_id", data[0]?.$id || "");
+
+        toast.info(`${data[0]?.display_name} selected`);
 
         localStorage.setItem("models", JSON.stringify(data));
       } catch (error) {
@@ -193,6 +202,31 @@ const Dashboard = () => {
     }
   };
 
+  const handleFileChange = async (e) => {
+    const files = Array.from(e.target.files);
+
+    //* Create blob URLs for each file
+    const urls = files.map((file) => URL.createObjectURL(file));
+    if (!files.length) return;
+
+    //* Store original files for uploading
+    const existingFiles = Array.isArray(getValues("files"))
+      ? getValues("files")
+      : [];
+    const newFiles = [...existingFiles, ...urls];
+
+    //* Check if image limit is reached
+    if (newFiles.length > 3) {
+      toast.error("You can upload a maximum of 3 files.");
+      return;
+    }
+
+    setValue("files", newFiles);
+    setSelectedFiles(() => [...newFiles]);
+
+    toast.success(`${files.length} file(s) selected`);
+  };
+
   const onSubmit = async (data) => {
     setMessages((prevMessages) => [
       ...prevMessages,
@@ -299,6 +333,37 @@ const Dashboard = () => {
           {/* Input */}
           <div className="w-full max-w-3xl bg-background pb-8 sticky bottom-0 flex justify-center items-center">
             <div className="w-full min-h-20 rounded-2xl p-4 border border-dashed">
+              {/* Image Preview */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  {selectedFiles &&
+                    selectedFiles.length > 0 &&
+                    selectedFiles.map((url, index) => (
+                      <div key={index} className="relative">
+                        <Image
+                          src={url}
+                          height={100}
+                          width={100}
+                          alt={`Preview ${index}`}
+                          className="rounded-lg object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setValue(
+                              "files",
+                              getValues("files").filter((_, i) => i !== index)
+                            );
+                          }}
+                          className="absolute top-1 right-1 cursor-pointer p-1 rounded-2xl bg-secondary hover:bg-secondary/50 ease-in-out duration-100"
+                        >
+                          <X className="size-4" />
+                        </button>
+                      </div>
+                    ))}
+                </div>
+              </div>
+              {/* Prompt Input */}
               <div>
                 <div className="w-full flex justify-center items-center">
                   <Textarea
@@ -315,14 +380,40 @@ const Dashboard = () => {
                   />
                 </div>
                 <div className="w-full flex justify-between items-center mt-2">
+                  {/* File Input */}
                   <div>
-                    {/* FIXME: This should be a file input  */}
-                    <Button
-                      variant="ghost"
-                      className="cursor-pointer flex justify-center items-center text-[#676767]"
-                    >
-                      <Paperclip className="size-5" />
-                    </Button>
+                    <Controller
+                      name="files"
+                      control={control}
+                      render={({
+                        field: { value = [], onChange, ...rest },
+                      }) => (
+                        <>
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            id="files"
+                            className="hidden"
+                            onChange={(e) => handleFileChange(e)}
+                            disabled={value.length >= 3}
+                          />
+                          <Button
+                            asChild
+                            variant="ghost"
+                            className={`cursor-pointer flex justify-center items-center text-[#676767] ${
+                              value.length >= 3 &&
+                              "opacity-50 cursor-not-allowed"
+                            }`}
+                            disabled={value.length >= 3}
+                          >
+                            <Label htmlFor="files">
+                              <Paperclip className="size-5" />
+                            </Label>
+                          </Button>
+                        </>
+                      )}
+                    />
                   </div>
                   <div>
                     <Button
