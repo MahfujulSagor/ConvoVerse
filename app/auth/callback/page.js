@@ -13,11 +13,7 @@ export default function OAuthCallback() {
         const jwt = await account.createJWT();
         if (!jwt || !jwt.jwt) throw new Error("Failed to generate JWT");
 
-        if (!session) {
-          throw new Error("No active session.");
-        }
-
-        // Send session token to backend to store in HTTP-only cookie
+        // Send jwt token to backend to store in HTTP-only cookie
         const response = await fetch("/api/auth/store-session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
