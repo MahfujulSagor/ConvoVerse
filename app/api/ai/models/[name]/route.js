@@ -10,11 +10,21 @@ export const GET = async (request, { params }) => {
   const sessionToken = cookieStore.get("session_token")?.value;
 
   if (!sessionToken) {
-    return new Response("Unauthorized", { status: 401 });
+    return NextResponse.json(
+      { message: "Unauthorized" },
+      {
+        status: 401,
+      }
+    );
   }
 
   if (!name) {
-    return new Response("Model name is required", { status: 400 });
+    return NextResponse.json(
+      { message: "Model name is required" },
+      {
+        status: 400,
+      }
+    );
   }
 
   try {
@@ -24,14 +34,19 @@ export const GET = async (request, { params }) => {
       [Query.equal("name", name)]
     );
 
-    const models = response.documents.map(({display_name, name, $id}) => ({
+    const models = response.documents.map(({ display_name, name, $id }) => ({
       $id,
       name,
-      display_name
+      display_name,
     }));
 
     if (models.length === 0) {
-      return new Response("Model not found", { status: 404 });
+      return NextResponse.json(
+        { message: "Model not found" },
+        {
+          status: 404,
+        }
+      );
     }
 
     return NextResponse.json(models, {
