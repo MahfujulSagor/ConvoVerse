@@ -269,9 +269,38 @@ const Dashboard = () => {
     try {
       resetField("message");
       await aiChat({ ...data, model_id: model_id });
+
+      const fullResponse = responseRef.current;
+      const prompt = data.message;
+
+      await storeChatHistory({ prompt, fullResponse });
     } catch (error) {
       console.log(error);
       resetField("message");
+    }
+  };
+
+  const storeChatHistory = async ({ prompt, fullResponse }) => {
+    try {
+      const response = await fetch(`/api/chat/history`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt,
+          fullResponse,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to store chat history");
+        return;
+      }
+
+      toast.success("Chat history stored successfully");
+    } catch (error) {
+      console.error("Error storing chat history:", error);
     }
   };
 
@@ -375,12 +404,6 @@ const Dashboard = () => {
                         />
                         <button
                           type="button"
-                          // onClick={() => {
-                          //   setValue(
-                          //     "files",
-                          //     getValues("files").filter((_, i) => i !== index)
-                          //   );
-                          // }}
                           onClick={() => handleFileRemove(index)}
                           className="absolute top-1 right-1 cursor-pointer p-1 rounded-2xl bg-secondary hover:bg-secondary/50 ease-in-out duration-100"
                         >

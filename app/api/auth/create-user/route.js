@@ -9,7 +9,7 @@ export const POST = async (req) => {
   const sessionToken = cookieStore.get("session_token")?.value;
 
   if (!sessionToken) {
-    return NextResponse.json({ message: "Unauthorized!" }, { status: 401 });
+    return NextResponse.json({ message: "Unauthorized request!" }, { status: 401 });
   }
 
   if (!userId) {
