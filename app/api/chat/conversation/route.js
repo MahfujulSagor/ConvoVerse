@@ -36,9 +36,9 @@ export const POST = async (req) => {
       content: fullResponse,
     };
 
-    const history = await databases.createDocument(
+    const conversation = await databases.createDocument(
       process.env.APPWRITE_DATABASE_ID,
-      process.env.APPWRITE_HISTORY_COLLECTION_ID,
+      process.env.APPWRITE_CONVERSATIONS_COLLECTION_ID,
       ID.unique(),
       {
         messages: [
@@ -48,7 +48,7 @@ export const POST = async (req) => {
       }
     );
 
-    if (!history) {
+    if (!conversation) {
       return NextResponse.json(
         { error: "Failed to save history" },
         { status: 500 }
