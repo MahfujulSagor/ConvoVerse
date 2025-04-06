@@ -28,7 +28,7 @@ const inputSchema = z.object({
   role: z.string(),
 });
 
-const Dashboard = () => {
+const Chats = () => {
   const { currentAI } = useAI();
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]); // * Chat messages
@@ -273,7 +273,7 @@ const Dashboard = () => {
       const fullResponse = responseRef.current;
       const prompt = data.message;
 
-      // await storeConversationHistory({ prompt, fullResponse });
+      await storeConversationHistory({ prompt, fullResponse });
     } catch (error) {
       console.log(error);
       resetField("message");
@@ -484,4 +484,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Chats;

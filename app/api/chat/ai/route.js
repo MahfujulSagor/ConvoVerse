@@ -45,10 +45,8 @@ export const POST = async (req) => {
       if (appwriteResponse.documents.length > 0) {
         const modelName = appwriteResponse.documents[0].model_name;
 
-        // Encrypt the model name before storing it in cookies
         const { encrypted, iv: encryptionIV } = encrypt(modelName);
 
-        // Store the model_id and encrypted model name in cookies
         cookieStore.set("model_id", model_id);
         cookieStore.set("model_name_hash", encrypted);
         cookieStore.set("model_name_iv", encryptionIV);
@@ -66,6 +64,8 @@ export const POST = async (req) => {
     }
   }
 
+  const modifiedPrompt = `Provide a short but complete answer to the following question: ${prompt}`;
+
   try {
     const response = await fetch(process.env.OPENROUTER_BASE_URL, {
       method: "POST",
@@ -78,7 +78,7 @@ export const POST = async (req) => {
         messages: [
           {
             role: "user",
-            content: prompt,
+            content: modifiedPrompt,
           },
         ],
         stream: true,
