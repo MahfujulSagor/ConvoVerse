@@ -1,16 +1,28 @@
 "use client";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { account } from "@/lib/appwrite";
 import { toast } from "sonner";
 import Loader from "@/components/Loader";
 
 export default function OAuthCallback() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    async function fetchSession() {
+    const completeOAuth = async () => {
+      const userId = searchParams.get("userId");
+      const secret = searchParams.get("secret");
+
+      if (!userId || !secret) {
+        console.error("Missing OAuth parameters");
+        router.replace("/auth/get-started");
+        return;
+      }
+
       try {
+        await account.createSession(userId, secret);
+
         const session = await account.getSession("current");
 
         const token = session.$id;
@@ -34,17 +46,17 @@ export default function OAuthCallback() {
         }
 
         // Store user data in database
-        const userResponse = await fetch("/api/auth/create-user", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: session.userId,
-          }),
-        });
+        // const userResponse = await fetch("/api/auth/create-user", {
+        //   method: "POST",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify({
+        //     userId: session.userId,
+        //   }),
+        // });
 
-        if (!userResponse.ok) {
-          throw new Error(`Server Error: ${userResponse.statusText}`);
-        }
+        // if (!userResponse.ok) {
+        //   throw new Error(`Server Error: ${userResponse.statusText}`);
+        // }
 
         // Redirect to dashboard after login
         router.push("/dashboard");
@@ -56,10 +68,10 @@ export default function OAuthCallback() {
         localStorage.removeItem("auth_token");
         toast.error("An error occurred while logging in. Please try again.");
       }
-    }
+    };
 
-    fetchSession();
-  }, [router]);
+    completeOAuth();
+  }, [router, searchParams]);
 
   return <Loader />;
 }

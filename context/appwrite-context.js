@@ -23,7 +23,7 @@ export const AppwriteProvider = ({ children }) => {
   //* Sign in with Google
   const signIn = async () => {
     try {
-      account.createOAuth2Session(
+      account.createOAuth2Token(
         OAuthProvider.Google,
         `http://localhost:3000/auth/callback`,
         "http://localhost:3000/auth/get-started"
@@ -35,39 +35,42 @@ export const AppwriteProvider = ({ children }) => {
 
   //* Get current session
   const getSession = async () => {
-    const storedAvatar = localStorage.getItem("avatarUrl");
+    //* Timeout for the session to be created
+    setTimeout(async () => {
+      const storedAvatar = localStorage.getItem("avatarUrl");
 
-    try {
-      const sessionData = await account.get();
+      try {
+        const sessionData = await account.get();
 
-      if (!sessionData) {
-        setSession(null);
-        return;
-      }
+        if (!sessionData) {
+          setSession(null);
+          return;
+        }
 
-      if (storedAvatar) {
+        if (storedAvatar) {
+          setSession(() => ({
+            ...sessionData,
+            avatar: storedAvatar,
+          }));
+          return;
+        }
+
+        const avatarUrl = avatars.getInitials(sessionData.name || "User");
+        localStorage.setItem("avatarUrl", avatarUrl);
+
         setSession(() => ({
           ...sessionData,
-          avatar: storedAvatar,
+          avatar: avatarUrl,
         }));
-        return;
+      } catch (error) {
+        if (error.message.includes("missing scope (account)")) {
+          console.warn("Guest user detected.");
+        } else {
+          console.error("Error fetching session:", error);
+        }
+        setSession(null);
       }
-
-      const avatarUrl = avatars.getInitials(sessionData.name || "User");
-      localStorage.setItem("avatarUrl", avatarUrl);
-
-      setSession(() => ({
-        ...sessionData,
-        avatar: avatarUrl,
-      }));
-    } catch (error) {
-      if (error.message.includes("missing scope (account)")) {
-        console.warn("Guest user detected.");
-      } else {
-        console.error("Error fetching session:", error);
-      }
-      setSession(null);
-    }
+    }, 1500);
   };
 
   //* Sign out
