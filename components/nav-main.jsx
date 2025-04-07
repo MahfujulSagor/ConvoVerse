@@ -21,7 +21,10 @@ export function NavMain({ items }) {
         <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Loading History" className={'flex items-center justify-center'}>
+            <SidebarMenuButton
+              tooltip="Loading History"
+              className={"flex items-center justify-center"}
+            >
               <BeatLoader color="#cdcdcd" />
             </SidebarMenuButton>
           </SidebarMenuItem>

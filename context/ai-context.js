@@ -33,28 +33,53 @@ const AI = [
 export const AIProvider = ({ children }) => {
   const router = useRouter();
   const { session } = useAppwrite();
-  const [currentAI, setCurrentAI] = useState(() => {
-    if (typeof window === "undefined") return AI[0]; //* SSR Safety
+  const [isClient, setIsClient] = useState(false);
+  // const [currentAI, setCurrentAI] = useState(() => {
+  //   if (typeof window === "undefined") return AI[0]; //* SSR Safety
+  //   try {
+  //     const storedAI = localStorage.getItem("currentAI");
+  //     return storedAI ? JSON.parse(storedAI) : AI[0];
+  //   } catch (error) {
+  //     console.error("Error getting AI from localStorage", error);
+  //     return AI[0];
+  //   }
+  // });
+  // const [history, setHistory] = useState(() => {
+  //   if (typeof window === "undefined") return []; //* SSR safety
+  //   const storedHistory = localStorage.getItem("history");
+  //   return storedHistory ? JSON.parse(storedHistory) : [];
+  // });
+  const [currentAI, setCurrentAI] = useState(AI[0]);
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
     try {
       const storedAI = localStorage.getItem("currentAI");
-      return storedAI ? JSON.parse(storedAI) : AI[0];
+      setCurrentAI(storedAI ? JSON.parse(storedAI) : AI[0]);
+
+      const storedHistory = localStorage.getItem("history");
+      setHistory(storedHistory ? JSON.parse(storedHistory) : []);
     } catch (error) {
-      console.error("Error getting AI from localStorage", error);
-      return AI[0];
+      console.error("Error accessing localStorage:", error);
     }
-  });
-  const [history, setHistory] = useState([]);
+  }, [isClient]);
 
   //? Store in localStorage when AI changes
   useEffect(() => {
-    if (currentAI) {
+    if (isClient && currentAI) {
       try {
         localStorage.setItem("currentAI", JSON.stringify(currentAI));
       } catch (error) {
         console.error("Error setting AI in localStorage", error);
       }
     }
-  }, [currentAI]);
+  }, [currentAI, isClient]);
 
   //? Fetch chat history on mount
   useEffect(() => {
@@ -69,16 +94,24 @@ export const AIProvider = ({ children }) => {
         }
         const data = await response.json();
         setHistory(data);
+        //* Store in localStorage
+        if (isClient) {
+          localStorage.setItem("history", JSON.stringify(data));
+        }
       } catch (error) {
         console.error("Error fetching chat history:", error);
       }
     };
 
-    fetchHistory();
-  }, [session]);
+    if (!history.length && session?.$id) {
+      fetchHistory();
+    }
+  }, [session, history.length, isClient]);
 
   // * Handle new chat creation
-  const handleNewChat = async ({ userId }) => {
+  const handleNewChat = async () => {
+    const userId = session?.$id;
+
     if (!userId) {
       console.error("No user ID provided");
       return;
@@ -107,9 +140,50 @@ export const AIProvider = ({ children }) => {
     }
   };
 
+  // * Handle chat history deletion
+  const handleChatHistoryDelete = async (historyId) => {
+    if (!historyId || !session?.$id) {
+      console.error("Missing historyId or user session");
+      return;
+    }
+    try {
+      const response = await fetch("/api/chat/history", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          historyId,
+          userId: session.$id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete chat history");
+      }
+
+      const updatedHistory = history.filter((item) => item.$id !== historyId);
+      setHistory(updatedHistory);
+      if (isClient) {
+        localStorage.setItem("history", JSON.stringify(updatedHistory));
+      }
+      toast.success("Chat history deleted successfully");
+    } catch (error) {
+      console.error("Error deleting chat history:", error);
+      toast.error("Failed to delete chat history");
+    }
+  };
+
   return (
     <AIContext.Provider
-      value={{ currentAI, setCurrentAI, AI, handleNewChat, history }}
+      value={{
+        currentAI,
+        setCurrentAI,
+        AI,
+        handleNewChat,
+        history,
+        handleChatHistoryDelete,
+      }}
     >
       {children}
     </AIContext.Provider>
