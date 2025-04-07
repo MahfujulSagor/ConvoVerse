@@ -5,6 +5,7 @@ import Deepseek from "@/public/deepseek.svg";
 import Gemini from "@/public/gemini.svg";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useAppwrite } from "./appwrite-context";
 
 const AIContext = createContext(null);
 
@@ -31,6 +32,7 @@ const AI = [
 
 export const AIProvider = ({ children }) => {
   const router = useRouter();
+  const { session } = useAppwrite();
   const [currentAI, setCurrentAI] = useState(() => {
     if (typeof window === "undefined") return AI[0]; //* SSR Safety
     try {
@@ -41,8 +43,9 @@ export const AIProvider = ({ children }) => {
       return AI[0];
     }
   });
+  const [history, setHistory] = useState([]);
 
-  // Store in localStorage when AI changes
+  //? Store in localStorage when AI changes
   useEffect(() => {
     if (currentAI) {
       try {
@@ -53,8 +56,29 @@ export const AIProvider = ({ children }) => {
     }
   }, [currentAI]);
 
+  //? Fetch chat history on mount
+  useEffect(() => {
+    const fetchHistory = async () => {
+      if (!session?.$id) {
+        return;
+      }
+      try {
+        const response = await fetch(`/api/chat/history?userId=${session.$id}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch chat history");
+        }
+        const data = await response.json();
+        setHistory(data);
+      } catch (error) {
+        console.error("Error fetching chat history:", error);
+      }
+    };
+
+    fetchHistory();
+  }, [session]);
+
   // * Handle new chat creation
-  const handleNewChat = async ({userId}) => {
+  const handleNewChat = async ({ userId }) => {
     if (!userId) {
       console.error("No user ID provided");
       return;
@@ -84,7 +108,9 @@ export const AIProvider = ({ children }) => {
   };
 
   return (
-    <AIContext.Provider value={{ currentAI, setCurrentAI, AI, handleNewChat }}>
+    <AIContext.Provider
+      value={{ currentAI, setCurrentAI, AI, handleNewChat, history }}
+    >
       {children}
     </AIContext.Provider>
   );

@@ -14,9 +14,11 @@ import {
 import { AISwitcher } from "@/components/ai-switcher";
 import { useAppwrite } from "@/context/appwrite-context";
 import { NavNewChat } from "./nav-NewChat";
+import { useAI } from "@/context/ai-context";
 
 export function AppSidebar({ ...props }) {
   const { session } = useAppwrite();
+  const { history } = useAI();
 
   const data = {
     user: {
@@ -24,80 +26,10 @@ export function AppSidebar({ ...props }) {
       email: session?.email,
       avatar: session?.avatar,
     },
-    navMain: [
-      {
-        title: "Form in next.js",
-        url: "#",
-      },
-      {
-        title: "For loop in python",
-        url: "#",
-      },
-      {
-        title: "If statement in javascript",
-        url: "#",
-      },
-      {
-        title: "For loop in javascript",
-        url: "#",
-      },
-      {
-        title: "If statement in python",
-        url: "#",
-      },
-      {
-        title: "Form in next.js",
-        url: "#",
-      },
-      {
-        title: "For loop in python",
-        url: "#",
-      },
-      {
-        title: "If statement in javascript",
-        url: "#",
-      },
-      {
-        title: "For loop in javascript",
-        url: "#",
-      },
-      {
-        title: "If statement in python",
-        url: "#",
-      },
-      {
-        title: "Form in next.js",
-        url: "#",
-      },
-      {
-        title: "For loop in python",
-        url: "#",
-      },
-      {
-        title: "If statement in javascript",
-        url: "#",
-      },
-      {
-        title: "For loop in javascript",
-        url: "#",
-      },
-      {
-        title: "If statement in python",
-        url: "#",
-      },
-      {
-        title: "Form in next.js",
-        url: "#",
-      },
-      {
-        title: "For loop in python",
-        url: "#",
-      },
-      {
-        title: "If statement in javascript",
-        url: "#",
-      },
-    ],
+    navMain: history.map((item) => ({
+      title: item.title,
+      url: `/dashboard/chat/${item.$id}`,
+    })),
   };
 
   return (
