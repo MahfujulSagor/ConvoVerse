@@ -1,7 +1,7 @@
 "use client";
 import ChatItem from "@/components/chat/ChatItem";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowDown, Paperclip, SendHorizonal, X } from "lucide-react";
+import { Paperclip, SendHorizonal, X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";

@@ -91,11 +91,7 @@ export const GET = async (req) => {
     const conversations = await databases.listDocuments(
       process.env.APPWRITE_DATABASE_ID,
       process.env.APPWRITE_CONVERSATIONS_COLLECTION_ID,
-      [
-        Query.equal("history_id", historyId),
-        Query.orderAsc("$createdAt"),
-        Query.limit(5),
-      ]
+      [Query.equal("history_id", historyId), Query.orderAsc("$createdAt")]
     );
 
     if (conversations.documents.length === 0) {
@@ -104,16 +100,6 @@ export const GET = async (req) => {
         { status: 404 }
       );
     }
-
-    // const messages = conversations.documents?.flatMap((doc) => {
-    //   console.log("doc.messages raw:", doc.messages);
-
-    //   const parsedMessages = JSON.parse(doc.messages);
-    //   return parsedMessages.map((message) => ({
-    //     role: message.role,
-    //     content: message.content,
-    //   }));
-    // });
 
     const messages = conversations.documents?.flatMap((doc) => {
       return doc.messages
