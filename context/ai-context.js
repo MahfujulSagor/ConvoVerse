@@ -1,9 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import OpenAI from "@/public/openai.svg";
 import Deepseek from "@/public/deepseek.svg";
 import Gemini from "@/public/gemini.svg";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const AIContext = createContext(null);
 
@@ -16,29 +17,20 @@ export const useAI = () => {
 };
 
 const AI = [
-  // {
-  //   name: "OpenAI",
-  //   logo: OpenAI,
-  //   organization: 'openai',
-  // },
   {
     name: "Deepseek",
     logo: Deepseek,
-    organization: 'deepseek',
+    organization: "deepseek",
   },
   {
     name: "Gemini",
     logo: Gemini,
-    organization: 'gemini',
+    organization: "gemini",
   },
-  // {
-  //   name: "Grok",
-  //   logo: Grok,
-  //   organization: 'grok',
-  // },
 ];
 
 export const AIProvider = ({ children }) => {
+  const router = useRouter();
   const [currentAI, setCurrentAI] = useState(() => {
     if (typeof window === "undefined") return AI[0]; //* SSR Safety
     try {
@@ -61,8 +53,38 @@ export const AIProvider = ({ children }) => {
     }
   }, [currentAI]);
 
+  // * Handle new chat creation
+  const handleNewChat = async ({userId}) => {
+    if (!userId) {
+      console.error("No user ID provided");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/chat/history", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create new chat");
+      }
+
+      const newHistoryId = await response.json();
+      router.push(`/dashboard/chat/${newHistoryId}`);
+    } catch (error) {
+      console.error("Error creating chat history:", error);
+      toast.error("Failed to create new chat");
+    }
+  };
+
   return (
-    <AIContext.Provider value={{ currentAI, setCurrentAI, AI }}>
+    <AIContext.Provider value={{ currentAI, setCurrentAI, AI, handleNewChat }}>
       {children}
     </AIContext.Provider>
   );

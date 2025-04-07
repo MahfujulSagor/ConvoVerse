@@ -70,7 +70,7 @@ export const AppwriteProvider = ({ children }) => {
         }
         setSession(null);
       }
-    }, 1500);
+    }, 200);
   };
 
   //* Sign out
@@ -85,7 +85,6 @@ export const AppwriteProvider = ({ children }) => {
         credentials: "include",
       });
 
-      localStorage.removeItem("auth_token");
       setSession(null);
 
       window.location.href = "/";

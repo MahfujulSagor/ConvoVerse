@@ -24,8 +24,8 @@ export function NavMain({ items }) {
             <SidebarMenuItem key={index}>
               <Link href={item.url}>
                 <SidebarMenuButton tooltip={item.title} isActive={isActive}>
-                  <History/>
-                  <span>{item.title}</span>
+                  <History color="#bababa" />
+                  <span className="text-[#bababa]">{item.title}</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>

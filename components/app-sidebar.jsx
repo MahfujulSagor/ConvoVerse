@@ -97,26 +97,6 @@ export function AppSidebar({ ...props }) {
         title: "If statement in javascript",
         url: "#",
       },
-      {
-        title: "For loop in javascript",
-        url: "#",
-      },
-      {
-        title: "If statement in python",
-        url: "#",
-      },
-      {
-        title: "Form in next.js",
-        url: "#",
-      },
-      {
-        title: "For loop in python",
-        url: "#",
-      },
-      {
-        title: "If statement in javascript",
-        url: "#",
-      },
     ],
   };
 

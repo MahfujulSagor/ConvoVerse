@@ -4,11 +4,11 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export const POST = async (req) => {
-  const { prompt, fullResponse } = await req.json();
+  const { prompt, fullResponse, historyId } = await req.json();
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get("session_token")?.value;
 
-  if (!prompt || !fullResponse) {
+  if (!prompt || !fullResponse || !historyId) {
     return NextResponse.json(
       { error: "Missing required data" },
       { status: 400 }
@@ -21,9 +21,6 @@ export const POST = async (req) => {
       { status: 401 }
     );
   }
-
-  console.log("Prompt:", prompt);
-  console.log("Full Response:", fullResponse);
 
   try {
     const userPrompt = {
@@ -45,6 +42,7 @@ export const POST = async (req) => {
           JSON.stringify(userPrompt),
           JSON.stringify(assistantResponse),
         ],
+        history_id: historyId,
       }
     );
 
