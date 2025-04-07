@@ -10,9 +10,25 @@ import {
 import { History } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { BeatLoader } from "react-spinners";
 
 export function NavMain({ items }) {
   const pathname = usePathname();
+
+  if (!items || items.length === 0) {
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton tooltip="Loading History" className={'flex items-center justify-center'}>
+              <BeatLoader color="#cdcdcd" />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroup>
+    );
+  }
 
   return (
     <SidebarGroup>
@@ -24,8 +40,8 @@ export function NavMain({ items }) {
             <SidebarMenuItem key={index}>
               <Link href={item.url}>
                 <SidebarMenuButton tooltip={item.title} isActive={isActive}>
-                  <History color="#bababa" />
-                  <span className="text-[#bababa]">{item.title}</span>
+                  <History color="#cdcdcd" />
+                  <span className="text-[#cdcdcd]">{item.title}</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>

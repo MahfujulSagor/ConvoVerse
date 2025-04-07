@@ -70,7 +70,7 @@ export const AppwriteProvider = ({ children }) => {
         }
         setSession(null);
       }
-    }, 200);
+    }, 500);
   };
 
   //* Sign out

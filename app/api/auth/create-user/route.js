@@ -17,7 +17,10 @@ export const POST = async (req) => {
   }
 
   if (!userId) {
-    return NextResponse.json({ message: "User data not found!" }, { status: 404 });
+    return NextResponse.json(
+      { message: "User data not found!" },
+      { status: 404 }
+    );
   }
 
   try {
@@ -25,7 +28,7 @@ export const POST = async (req) => {
     const existingUser = await databases.listDocuments(
       process.env.APPWRITE_DATABASE_ID,
       process.env.APPWRITE_USERS_COLLECTION_ID,
-      [Query.equal("user_id", userId)]
+      [Query.equal("$id", userId)]
     );
 
     if (existingUser?.total > 0) {
@@ -36,15 +39,14 @@ export const POST = async (req) => {
     }
 
     const userData = {
-      user_id: userId,
       credits: 10,
     };
-    userId
+
     //* Store user data in Appwrite database
     const response = await databases.createDocument(
       process.env.APPWRITE_DATABASE_ID,
       process.env.APPWRITE_USERS_COLLECTION_ID,
-      ID.unique(),
+      userId,
       userData
     );
 
