@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { databases } from "@/lib/appwrite";
+import { ID, Query } from "appwrite";
 
 export const POST = async (req) => {
   const { userId } = await req.json();
@@ -9,32 +10,50 @@ export const POST = async (req) => {
   const sessionToken = cookieStore.get("session_token")?.value;
 
   if (!sessionToken) {
-    return NextResponse.json({ message: "Unauthorized request!" }, { status: 401 });
+    return NextResponse.json(
+      { message: "Unauthorized request!" },
+      { status: 401 }
+    );
   }
 
   if (!userId) {
-    return NextResponse.json({ message: "User data found!" }, { status: 404 });
+    return NextResponse.json({ message: "User data not found!" }, { status: 404 });
   }
 
   try {
+    //? Check if user data already exists
+    const existingUser = await databases.listDocuments(
+      process.env.APPWRITE_DATABASE_ID,
+      process.env.APPWRITE_USERS_COLLECTION_ID,
+      [Query.equal("user_id", userId)]
+    );
+
+    if (existingUser?.total > 0) {
+      return NextResponse.json(
+        { message: "User data already exists!" },
+        { status: 200 }
+      );
+    }
+
     const userData = {
+      user_id: userId,
       credits: 10,
     };
-
-    // Store user data in Appwrite database
+    userId
+    //* Store user data in Appwrite database
     const response = await databases.createDocument(
       process.env.APPWRITE_DATABASE_ID,
       process.env.APPWRITE_USERS_COLLECTION_ID,
-      userId,
+      ID.unique(),
       userData
     );
 
-    if (!response) {
+    if (!response.$id) {
       return NextResponse.json(
         {
-          message: "User data not found!",
+          message: "Failed to create user data!",
         },
-        { status: 404 }
+        { status: 500 }
       );
     }
 
@@ -48,7 +67,6 @@ export const POST = async (req) => {
     );
   } catch (error) {
     console.error("Server error while creating user data: ", error);
-    cookieStore.delete("session_token");
     return NextResponse.json(
       { message: "Server Error" },
       {
