@@ -85,10 +85,7 @@ export const GET = async (req) => {
     const history = await databases.listDocuments(
       process.env.APPWRITE_DATABASE_ID,
       process.env.APPWRITE_HISTORY_COLLECTION_ID,
-      [
-        Query.equal("user_id", userId),
-        Query.orderAsc("$createdAt"),
-      ]
+      [Query.equal("user_id", userId), Query.orderAsc("$createdAt")]
     );
 
     if (!history.documents || history.documents.length === 0) {
@@ -108,3 +105,55 @@ export const GET = async (req) => {
   }
 };
 
+// * Delete chat history
+export const DELETE = async (req) => {
+  const { historyId, userId } = await req.json();
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get("session_token")?.value;
+
+  if (!historyId) {
+    return NextResponse.json(
+      { error: "History ID is required!" },
+      { status: 400 }
+    );
+  }
+
+  if (!sessionToken) {
+    return NextResponse.json(
+      { error: "Unauthorized request!" },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const historyDoc = await databases.getDocument(
+      process.env.APPWRITE_DATABASE_ID,
+      process.env.APPWRITE_HISTORY_COLLECTION_ID,
+      historyId
+    );
+
+    if (historyDoc.user_id !== userId) {
+      return NextResponse.json(
+        { error: "You can only delete your own chat history" },
+        { status: 403 }
+      );
+    }
+
+    await databases.deleteDocument(
+      process.env.APPWRITE_DATABASE_ID,
+      process.env.APPWRITE_HISTORY_COLLECTION_ID,
+      historyId
+    );
+
+    return NextResponse.json(
+      { message: "Chat history deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting chat history:", error);
+    return NextResponse.json(
+      { error: "Failed to delete chat history" },
+      { status: 500 }
+    );
+  }
+};

@@ -51,6 +51,29 @@ const Chat = () => {
     });
 
   useEffect(() => {
+    const fetchConversations = async () => {
+      if (!historyId) return;
+
+      try {
+        const response = await fetch(
+          `/api/chat/conversation?historyId=${historyId}`
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch conversations");
+
+        const data = await response.json();
+
+        setMessages(data);
+      } catch (error) {
+        console.error("Error fetching previous conversations:", error);
+        toast.error("Could not load conversation history.");
+      }
+    };
+
+    fetchConversations();
+  }, [historyId]);
+
+  useEffect(() => {
     const fetchModels = async () => {
       try {
         const response = await fetch(
