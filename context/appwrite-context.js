@@ -15,6 +15,7 @@ export const useAppwrite = () => {
 
 export const AppwriteProvider = ({ children }) => {
   const [session, setSession] = useState(null);
+  const [sessionLoading, setSessionLoading] = useState(false);
 
   useEffect(() => {
     getSession();
@@ -35,6 +36,7 @@ export const AppwriteProvider = ({ children }) => {
 
   //* Get current session
   const getSession = async () => {
+    setSessionLoading(true);
     //* Timeout for the session to be created
     setTimeout(async () => {
       const storedAvatar = localStorage.getItem("avatarUrl");
@@ -69,6 +71,8 @@ export const AppwriteProvider = ({ children }) => {
           console.error("Error fetching session:", error);
         }
         setSession(null);
+      }finally {
+        setSessionLoading(false);
       }
     }, 500);
   };
@@ -93,7 +97,7 @@ export const AppwriteProvider = ({ children }) => {
     }
   };
   return (
-    <AppwriteContext.Provider value={{ signIn, session, signOut }}>
+    <AppwriteContext.Provider value={{ signIn, session, signOut, sessionLoading }}>
       {children}
     </AppwriteContext.Provider>
   );

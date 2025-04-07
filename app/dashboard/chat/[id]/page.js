@@ -34,6 +34,7 @@ const Chat = () => {
   const { currentAI } = useAI();
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]); // * Chat messages
+  const [showSkeleton, setShowSkeleton] = useState(false); // * Skeleton loading
   const [models, setModels] = useState([]); // * Models
   const [selectedFiles, setSelectedFiles] = useState([]); // * Selected files
 
@@ -150,6 +151,7 @@ const Chat = () => {
       }
       const decoder = new TextDecoder();
       let buffer = "";
+
       try {
         while (true) {
           const { done, value } = await reader.read();
