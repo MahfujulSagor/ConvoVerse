@@ -132,8 +132,17 @@ export const AIProvider = ({ children }) => {
         throw new Error("Failed to create new chat");
       }
 
-      const newHistoryId = await response.json();
+      const newHistory = await response.json();
+      const newHistoryId = newHistory?.$id;
       router.push(`/dashboard/chat/${newHistoryId}`);
+
+      setHistory((prevHistory) => {
+        const updatedHistory = [newHistory, ...prevHistory];
+        if (isClient) {
+          localStorage.setItem("history", JSON.stringify(updatedHistory));
+        }
+        return updatedHistory;
+      });
     } catch (error) {
       console.error("Error creating chat history:", error);
       toast.error("Failed to create new chat");
@@ -146,6 +155,7 @@ export const AIProvider = ({ children }) => {
       console.error("Missing historyId or user session");
       return;
     }
+
     try {
       const response = await fetch("/api/chat/history", {
         method: "DELETE",

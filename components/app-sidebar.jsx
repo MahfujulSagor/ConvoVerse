@@ -29,6 +29,7 @@ export function AppSidebar({ ...props }) {
     navMain: history.map((item) => ({
       title: item.title,
       url: `/dashboard/chat/${item.$id}`,
+      id: item.$id,
     })),
   };
 

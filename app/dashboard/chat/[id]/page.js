@@ -65,6 +65,10 @@ const Chat = () => {
         const data = await response.json();
 
         setMessages(data);
+
+        if (data.length === 0) {
+          toast.info("No conversations found.");
+        }
       } catch (error) {
         console.error("Error fetching previous conversations:", error);
         toast.error("Could not load conversation history.");
@@ -281,7 +285,7 @@ const Chat = () => {
   };
 
   const onSubmit = async (data) => {
-    setMessages((prevMessages) => [
+    setMessages((prevMessages = []) => [
       ...prevMessages,
       {
         content: data.message,
@@ -408,13 +412,14 @@ const Chat = () => {
           {/* Chats */}
           <div className="overflow-y-auto">
             <div className="min-h-[80vh] code-blocks max-w-[700px] mx-auto mb-20">
-              {messages.map((message, index) => (
-                <ChatItem
-                  key={index}
-                  content={message.content}
-                  role={message.role}
-                />
-              ))}
+              {messages.length > 0 &&
+                messages.map((message, index) => (
+                  <ChatItem
+                    key={index}
+                    content={message.content}
+                    role={message.role}
+                  />
+                ))}
             </div>
           </div>
           {/* Input */}

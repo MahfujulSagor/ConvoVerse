@@ -44,10 +44,8 @@ export const POST = async (req) => {
       );
     }
 
-    const historyId = newHistory.$id;
-
     return NextResponse.json(
-      historyId,
+      newHistory,
       { message: "Chat history created successfully" },
       { status: 200 }
     );
@@ -132,7 +130,14 @@ export const DELETE = async (req) => {
       historyId
     );
 
-    if (historyDoc.user_id !== userId) {
+    if (!historyDoc) {
+      return NextResponse.json(
+        { error: "Chat history not found" },
+        { status: 404 }
+      );
+    }
+
+    if (historyDoc.user_id?.$id !== userId) {
       return NextResponse.json(
         { error: "You can only delete your own chat history" },
         { status: 403 }
