@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
 import { useAppwrite } from "@/context/appwrite-context";
+import ChatSkeleton from "@/components/ChatSkeleton";
 
 const inputSchema = z.object({
   message: z.string().nonempty("Message cannot be empty"),
@@ -151,8 +152,6 @@ const Chat = () => {
         }),
       });
 
-      setShowSkeleton(false);
-
       const reader = response.body?.getReader();
       if (!reader) {
         throw new Error("Response body is not readable");
@@ -160,6 +159,7 @@ const Chat = () => {
       const decoder = new TextDecoder();
       let buffer = "";
 
+      setShowSkeleton(false);
       try {
         while (true) {
           const { done, value } = await reader.read();
@@ -424,6 +424,7 @@ const Chat = () => {
                     role={message.role}
                   />
                 ))}
+              {showSkeleton && <ChatSkeleton />}
             </div>
           </div>
           {/* Input */}
