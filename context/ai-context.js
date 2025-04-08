@@ -85,7 +85,9 @@ export const AIProvider = ({ children }) => {
       try {
         const response = await fetch(`/api/chat/history?userId=${session.$id}`);
         if (!response.ok) {
-          throw new Error("Failed to fetch chat history");
+          console.error("Error fetching chat history:", response.statusText);
+          toast.error("Failed to fetch chat history");
+          return;
         }
         const data = await response.json();
         setHistory(data);
@@ -111,11 +113,28 @@ export const AIProvider = ({ children }) => {
       console.error("No user ID provided");
       return;
     }
-
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); //? 10s timeout
 
     try {
+      //? Query to get the count of histories for the user
+      const historyCountRes = await fetch(
+        `/api/chat/history-limit?userId=${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (historyCountRes.status === 403) {
+        toast.error(
+          "You’ve reached your limit of chats. Please delete old ones to start a new one."
+        );
+        return;
+      }
+
       const response = await fetch("/api/chat/history", {
         method: "POST",
         headers: {
@@ -127,10 +146,10 @@ export const AIProvider = ({ children }) => {
         signal: controller.signal,
       });
 
-      clearTimeout(timeoutId);
-
       if (!response.ok) {
-        throw new Error("Failed to create new chat");
+        console.error("Error creating new chat history:", response.statusText);
+        toast.error("Failed to create new chat");
+        return;
       }
 
       const newHistory = await response.json();
@@ -145,7 +164,6 @@ export const AIProvider = ({ children }) => {
         return updatedHistory;
       });
     } catch (error) {
-      clearTimeout(timeoutId);
       if (error.name === "AbortError") {
         console.warn("🔌 New chat creation was aborted");
         toast.error("Chat creation timed out");
@@ -154,6 +172,8 @@ export const AIProvider = ({ children }) => {
         toast.error("Failed to create new chat");
       }
       router.push("/dashboard");
+    } finally {
+      clearTimeout(timeoutId); //? Clear the timeout
     }
   };
 
@@ -177,7 +197,9 @@ export const AIProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to delete chat history");
+        console.error("Error deleting chat history:", response.statusText);
+        toast.error("Failed to delete chat history");
+        return;
       }
 
       const updatedHistory = history.filter((item) => item.$id !== historyId);
