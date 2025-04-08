@@ -337,8 +337,6 @@ const Chat = () => {
         console.error("Failed to store chat history");
         return;
       }
-
-      toast.success("Chat history stored successfully");
     } catch (error) {
       console.error("Error storing chat history:", error);
     }
