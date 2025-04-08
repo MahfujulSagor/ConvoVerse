@@ -44,11 +44,6 @@ export const AIProvider = ({ children }) => {
   //     return AI[0];
   //   }
   // });
-  // const [history, setHistory] = useState(() => {
-  //   if (typeof window === "undefined") return []; //* SSR safety
-  //   const storedHistory = localStorage.getItem("history");
-  //   return storedHistory ? JSON.parse(storedHistory) : [];
-  // });
   const [currentAI, setCurrentAI] = useState(AI[0]);
   const [history, setHistory] = useState([]);
 
@@ -117,6 +112,9 @@ export const AIProvider = ({ children }) => {
       return;
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); //? 10s timeout
+
     try {
       const response = await fetch("/api/chat/history", {
         method: "POST",
@@ -126,7 +124,10 @@ export const AIProvider = ({ children }) => {
         body: JSON.stringify({
           userId,
         }),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error("Failed to create new chat");
@@ -144,8 +145,15 @@ export const AIProvider = ({ children }) => {
         return updatedHistory;
       });
     } catch (error) {
-      console.error("Error creating chat history:", error);
-      toast.error("Failed to create new chat");
+      clearTimeout(timeoutId);
+      if (error.name === "AbortError") {
+        console.warn("🔌 New chat creation was aborted");
+        toast.error("Chat creation timed out");
+      } else {
+        console.error("Error creating chat history:", error);
+        toast.error("Failed to create new chat");
+      }
+      router.push("/dashboard");
     }
   };
 

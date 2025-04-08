@@ -1,5 +1,4 @@
 "use client";
-import { TextScramble } from "@/components/motion-primitives/text-scramble";
 import { Button } from "@/components/ui/button";
 import { useAI } from "@/context/ai-context";
 import React, { useState } from "react";
@@ -25,9 +24,7 @@ const Dashboard = () => {
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
       <div className="mx-auto">
-        <TextScramble className="text-2xl" duration={1.2} characterSet=". ">
-          This is the Dashboard
-        </TextScramble>
+        <p className="text-2xl">This is the Dashboard</p>
         <div className="w-full flex flex-col items-center justify-center">
           <Button
             variant=""
