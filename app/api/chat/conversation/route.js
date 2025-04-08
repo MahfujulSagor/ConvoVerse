@@ -95,10 +95,7 @@ export const GET = async (req) => {
     );
 
     if (conversations.documents.length === 0) {
-      return NextResponse.json(
-        { error: "No conversation found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ messages: [] }, { status: 200 });
     }
 
     const messages = conversations.documents?.flatMap((doc) => {
