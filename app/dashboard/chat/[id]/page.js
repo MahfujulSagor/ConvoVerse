@@ -21,6 +21,7 @@ import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
+import { useAppwrite } from "@/context/appwrite-context";
 
 const inputSchema = z.object({
   message: z.string().nonempty("Message cannot be empty"),
@@ -136,6 +137,7 @@ const Chat = () => {
   }, [currentAI, setValue]);
 
   const aiChat = async ({ message, model_id }) => {
+    setShowSkeleton(true);
     responseRef.current = "";
     try {
       const response = await fetch(`/api/chat/ai`, {
@@ -148,6 +150,8 @@ const Chat = () => {
           model_id: model_id,
         }),
       });
+
+      setShowSkeleton(false);
 
       const reader = response.body?.getReader();
       if (!reader) {
@@ -285,8 +289,8 @@ const Chat = () => {
   };
 
   const onSubmit = async (data) => {
-    setMessages((prevMessages = []) => [
-      ...prevMessages,
+    setMessages((prevMessages) => [
+      ...(Array.isArray(prevMessages) ? prevMessages : []),
       {
         content: data.message,
         role: data.role,

@@ -32,16 +32,17 @@ export function NavMain({ items }) {
       return;
     }
 
+    let toastId;
     try {
-      toast.loading(`Deleting history...`);
+      toastId = toast.loading(`Deleting history...`);
       await handleChatHistoryDelete(historyId);
     } catch (error) {
       console.error("Error deleting history:", error);
-      toast.dismiss();
+      toast.dismiss(toastId);
       toast.error("Error deleting history");
     } finally {
-        toast.dismiss();
-        toast.success("History deleted");
+      toast.dismiss(toastId);
+      toast.success("History deleted");
     }
   };
 
@@ -78,7 +79,9 @@ export function NavMain({ items }) {
                 className={"cursor-pointer"}
               >
                 <History color="#cdcdcd" />
-                <Link href={"#"} className="text-nowrap truncate"><span className="text-[#cdcdcd]">{item.title}</span></Link>
+                <Link href={item.url} className="text-nowrap truncate">
+                  <span className="text-[#cdcdcd]">{item.title}</span>
+                </Link>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild className="cursor-pointer">
                     <div className="relative ml-auto p-1 rounded">
