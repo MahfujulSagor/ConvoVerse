@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { account } from "@/lib/appwrite";
 import { toast } from "sonner";
 import Loader from "@/components/Loader";
-import { useAppwrite } from "@/context/appwrite-context";
 
 export default function OAuthCallback() {
   const router = useRouter();
@@ -28,8 +27,8 @@ export default function OAuthCallback() {
           // Attempt to get the current session
           session = await account.getSession("current");
         } catch (err) {
-          // If no session exists, we'll catch the error and create a new session
-          console.log("No session found, creating a new session...");
+          // If no session exists catch the error and create a new session
+          console.warn("No session found, creating a new session...");
         }
 
         if (!session) {

@@ -31,7 +31,7 @@ export function AISwitcher() {
   }, []);
 
   // Avoid hydration errors
-  if (!isClient || !currentAI) {
+  if (!isClient || !currentAI || !AI) {
     return null;
   }
 

@@ -52,18 +52,20 @@ export const AIProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (!isClient) return;
+    setIsClient(true);
 
-    try {
-      const storedAI = localStorage.getItem("currentAI");
-      setCurrentAI(storedAI ? JSON.parse(storedAI) : AI[0]);
+    if (typeof window !== "undefined") {
+      try {
+        const storedAI = localStorage.getItem("currentAI");
+        setCurrentAI(storedAI ? JSON.parse(storedAI) : AI[0]);
 
-      const storedHistory = localStorage.getItem("history");
-      setHistory(storedHistory ? JSON.parse(storedHistory) : []);
-    } catch (error) {
-      console.error("Error accessing localStorage:", error);
+        const storedHistory = localStorage.getItem("history");
+        setHistory(storedHistory ? JSON.parse(storedHistory) : []);
+      } catch (error) {
+        console.error("Error accessing localStorage:", error);
+      }
     }
-  }, [isClient]);
+  }, []);
 
   //? Store in localStorage when AI changes
   useEffect(() => {

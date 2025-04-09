@@ -310,7 +310,7 @@ const Chat = () => {
 
       await storeConversationHistory({ prompt, fullResponse, historyId });
     } catch (error) {
-      console.log(error);
+      console.error(error);
       resetField("message");
     }
   };
