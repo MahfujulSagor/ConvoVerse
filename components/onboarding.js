@@ -1,8 +1,25 @@
-import React from "react";
+"use client";
+import gsap from "gsap";
+import React, { useEffect, useRef } from "react";
 
 const Onboarding = () => {
+  const onboardingRef = useRef(null);
+
+  useEffect(() => {
+    if (!onboardingRef.current) return;
+
+    gsap.fromTo(
+      onboardingRef.current,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+    );
+  }, []);
+
   return (
-    <div className="relative overflow-hidden cursor-default w-full rounded-xl bg-background max-w-[760px] mx-auto border p-8">
+    <div
+      ref={onboardingRef}
+      className="relative overflow-hidden cursor-default w-full rounded-xl bg-background max-w-[760px] mx-auto border p-8"
+    >
       <p className="text-xl font-bold">
         On-Demand Access to the Latest AI Models
       </p>

@@ -91,7 +91,11 @@ export const GET = async (req) => {
     const conversations = await databases.listDocuments(
       process.env.APPWRITE_DATABASE_ID,
       process.env.APPWRITE_CONVERSATIONS_COLLECTION_ID,
-      [Query.equal("history_id", historyId), Query.orderAsc("$createdAt")]
+      [
+        Query.equal("history_id", historyId),
+        Query.orderAsc("$createdAt"),
+        Query.limit(10), //? Limit to 10 conversations
+      ]
     );
 
     if (conversations.documents.length === 0) {
