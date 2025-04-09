@@ -22,6 +22,12 @@ const Dashboard = () => {
 
     if (!btn || !arrow) return;
 
+    gsap.fromTo(
+      btn,
+      { scale: 0 },
+      { scale: 1, duration: 0.5, ease: "power2.out" }
+    );
+
     gsap.set(arrow, { scale: 0, opacity: 0 });
     gsap.set(arrowDiv, { scale: 0.4 });
 
@@ -81,7 +87,7 @@ const Dashboard = () => {
         <button
           ref={buttonRef}
           onClick={handleButtonClick}
-          className="mt-8 p-2 cursor-pointer bg-muted rounded-full flex justify-between items-center gap-2"
+          className="mt-8 p-2 cursor-pointer bg-muted rounded-full flex md:justify-between justify-center items-center gap-2"
         >
           {loading ? (
             <div className="flex items-center justify-center w-full min-w-[150px] min-h-[44px]">
@@ -89,10 +95,10 @@ const Dashboard = () => {
             </div>
           ) : (
             <>
-              <span className="ml-4">Start chating</span>
+              <span className="md:ml-4 md:text-lg text-base font-medium">Start chating</span>
               <div
                 ref={arrowDivRef}
-                className="bg-foreground p-3 text-background rounded-full"
+                className="bg-foreground p-3 text-background rounded-full md:flex hidden"
               >
                 <ArrowUpRight ref={arrowRef} />
               </div>

@@ -59,7 +59,13 @@ const Chat = () => {
 
       try {
         const response = await fetch(
-          `/api/chat/conversation?historyId=${historyId}`
+          `/api/chat/conversation?historyId=${historyId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
 
         if (!response.ok) throw new Error("Failed to fetch conversations");
@@ -80,6 +86,7 @@ const Chat = () => {
     fetchConversations();
   }, [historyId]);
 
+  //* Fetch available models
   useEffect(() => {
     const fetchModels = async () => {
       try {
@@ -238,55 +245,56 @@ const Chat = () => {
     }
   };
 
-  const handleFileChange = async (e) => {
-    try {
-      const files = Array.from(e.target.files);
+  //! file upload not supported yet
+  // const handleFileChange = async (e) => {
+  //   try {
+  //     const files = Array.from(e.target.files);
 
-      if (!files.length) {
-        toast.warning("No files selected");
-        return;
-      }
+  //     if (!files.length) {
+  //       toast.warning("No files selected");
+  //       return;
+  //     }
 
-      //* Create blob URLs for each file
-      const urls = files.map((file) => URL.createObjectURL(file));
+  //     //* Create blob URLs for each file
+  //     const urls = files.map((file) => URL.createObjectURL(file));
 
-      //* Store original files for uploading
-      const existingFiles = Array.isArray(getValues("files"))
-        ? getValues("files")
-        : [];
-      const newFiles = [...existingFiles, ...urls];
+  //     //* Store original files for uploading
+  //     const existingFiles = Array.isArray(getValues("files"))
+  //       ? getValues("files")
+  //       : [];
+  //     const newFiles = [...existingFiles, ...urls];
 
-      //* Check if image limit is reached
-      if (newFiles.length > 3) {
-        toast.warning("You can upload a maximum of 3 files.");
-        return;
-      }
+  //     //* Check if image limit is reached
+  //     if (newFiles.length > 3) {
+  //       toast.warning("You can upload a maximum of 3 files.");
+  //       return;
+  //     }
 
-      setValue("files", newFiles);
-      setSelectedFiles(newFiles);
+  //     setValue("files", newFiles);
+  //     setSelectedFiles(newFiles);
 
-      toast.success(`${files.length} file(s) selected`);
-    } catch (error) {
-      console.error("Error selecting files:", error);
-      toast.error("Error selecting files");
-      return;
-    }
-  };
+  //     toast.success(`${files.length} file(s) selected`);
+  //   } catch (error) {
+  //     console.error("Error selecting files:", error);
+  //     toast.error("Error selecting files");
+  //     return;
+  //   }
+  // };
 
-  const handleFileRemove = (index) => {
-    try {
-      const files = getValues("files");
-      const updatedFiles = files.filter((_, i) => i !== index);
-      setValue("files", updatedFiles);
-      setSelectedFiles(updatedFiles);
+  // const handleFileRemove = (index) => {
+  //   try {
+  //     const files = getValues("files");
+  //     const updatedFiles = files.filter((_, i) => i !== index);
+  //     setValue("files", updatedFiles);
+  //     setSelectedFiles(updatedFiles);
 
-      toast.warning(`File removed`);
-    } catch (error) {
-      console.error("Error removing file:", error);
-      toast.error("Error removing file");
-      return;
-    }
-  };
+  //     toast.warning(`File removed`);
+  //   } catch (error) {
+  //     console.error("Error removing file:", error);
+  //     toast.error("Error removing file");
+  //     return;
+  //   }
+  // };
 
   const onSubmit = async (data) => {
     setMessages((prevMessages) => [
@@ -339,6 +347,7 @@ const Chat = () => {
       }
     } catch (error) {
       console.error("Error storing chat history:", error);
+      toast.error("Error storing chat history");
     }
   };
 
@@ -393,7 +402,7 @@ const Chat = () => {
           />
         </div>
         {/* Balance */}
-        {/* //! will be added in the future versions */}
+        {/* will be added in the future versions */}
         {/* <Button
           variant="ghost"
           onClick={handleBalanceClick}
@@ -409,7 +418,7 @@ const Chat = () => {
               <div className="text-sm font-medium text-teal-400">$10.00</div>
             </div>
           )}
-        </Button>*/}
+        </Button> */}
       </div>
       <div className="max-w-3xl w-full mx-auto relative min-h-screen">
         <div className="mr-8">

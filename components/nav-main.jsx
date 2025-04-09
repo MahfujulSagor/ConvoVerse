@@ -19,17 +19,36 @@ import {
 import { Ellipsis } from "lucide-react";
 import { useAI } from "@/context/ai-context";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import HistorySkeleton from "./historySkeleton";
+import gsap from "gsap";
 
 export function NavMain() {
   const pathname = usePathname();
   const { handleChatHistoryDelete, history } = useAI();
   const [isClient, setIsClient] = useState(false);
 
+  const menuItemsRef = useRef([]);
+
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    //? Staggered animation when the history items are updated
+    if (history && menuItemsRef.current.length > 0) {
+      gsap.fromTo(
+        menuItemsRef.current,
+        { y: -10, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          stagger: 0.2,
+          ease: "power2.out",
+        }
+      );
+    }
+  }, [history]);
 
   if (!isClient || !history) {
     return (
@@ -54,7 +73,9 @@ export function NavMain() {
         <SidebarGroupLabel>History</SidebarGroupLabel>
         <SidebarMenu>
           <SidebarMenuItem>
-            <div className="text-[#cdcdcd] text-sm text-center">No history found</div>
+            <div className="text-[#cdcdcd] text-sm text-center">
+              No history found
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
@@ -88,14 +109,21 @@ export function NavMain() {
           const isActive = pathname === item.url;
 
           return (
-            <SidebarMenuItem key={index} className={"group/collapsible"}>
+            <SidebarMenuItem
+              ref={(el) => (menuItemsRef.current[index] = el)}
+              key={index}
+              className={"group/collapsible"}
+            >
               <SidebarMenuButton
                 tooltip={item.title}
                 isActive={isActive}
-                className={"cursor-pointer"}
+                className={""}
               >
                 <History color="#cdcdcd" />
-                <Link href={item.url} className="text-nowrap truncate">
+                <Link
+                  href={item.url}
+                  className="text-nowrap truncate cursor-pointer w-full"
+                >
                   <span className="text-[#cdcdcd]">{item.title}</span>
                 </Link>
                 <DropdownMenu>

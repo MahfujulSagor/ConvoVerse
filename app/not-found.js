@@ -14,7 +14,7 @@ const NotFound = () => {
             from={0}
             target={404}
             autoStart={true}
-            transition={{ duration: 3.5, type: "tween", ease: "easeInOut" }}
+            transition={{ duration: 2, type: "tween", ease: "easeInOut" }}
           />
         </h1>
         <h2 className="lg:text-6xl text-4xl font-bold text-muted-foreground">
