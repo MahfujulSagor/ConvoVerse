@@ -19,7 +19,7 @@ export const POST = async () => {
       }
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

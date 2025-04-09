@@ -1,6 +1,7 @@
 "use client";
 import { account, avatars } from "@/lib/appwrite";
 import { OAuthProvider } from "appwrite";
+import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
 const AppwriteContext = createContext();
@@ -14,8 +15,10 @@ export const useAppwrite = () => {
 };
 
 export const AppwriteProvider = ({ children }) => {
+  const router = useRouter();
+
   const [session, setSession] = useState(null);
-  const [sessionLoading, setSessionLoading] = useState(false);
+  const [sessionLoading, setSessionLoading] = useState(true);
 
   useEffect(() => {
     getSession();
@@ -36,53 +39,49 @@ export const AppwriteProvider = ({ children }) => {
 
   //* Get current session
   const getSession = async () => {
-    setSessionLoading(true);
     //* Timeout for the session to be created
-    setTimeout(async () => {
-      const storedAvatar = localStorage.getItem("avatarUrl");
+    const storedAvatar = localStorage.getItem("avatarUrl");
 
-      try {
-        const sessionData = await account.get();
+    try {
+      const sessionData = await account.get();
 
-        if (!sessionData) {
-          setSession(null);
-          return;
-        }
+      if (!sessionData) {
+        setSession(null);
+        setSessionLoading(false);
+        return;
+      }
 
-        if (storedAvatar) {
-          setSession(() => ({
-            ...sessionData,
-            avatar: storedAvatar,
-          }));
-          return;
-        }
-
-        const avatarUrl = avatars.getInitials(sessionData.name || "User");
-        localStorage.setItem("avatarUrl", avatarUrl);
-
+      if (storedAvatar) {
         setSession(() => ({
           ...sessionData,
-          avatar: avatarUrl,
+          avatar: storedAvatar,
         }));
-      } catch (error) {
-        if (error.message.includes("missing scope (account)")) {
-          console.warn("Guest user detected.");
-        } else {
-          console.error("Error fetching session:", error);
-        }
-        setSession(null);
-      }finally {
-        setSessionLoading(false);
+        return;
       }
-    }, 500);
+
+      const avatarUrl = avatars.getInitials(sessionData.name || "User");
+      localStorage.setItem("avatarUrl", avatarUrl);
+
+      setSession(() => ({
+        ...sessionData,
+        avatar: avatarUrl,
+      }));
+    } catch (error) {
+      if (error.message.includes("missing scope (account)")) {
+        console.warn("Guest user detected.");
+      } else {
+        console.error("Error fetching session:", error);
+      }
+      setSession(null);
+    } finally {
+      setSessionLoading(false);
+    }
   };
 
   //* Sign out
   const signOut = async () => {
     try {
       await account.deleteSession("current");
-
-      localStorage.removeItem("avatarUrl");
 
       await fetch("/api/auth/sign-out", {
         method: "POST",
@@ -91,13 +90,26 @@ export const AppwriteProvider = ({ children }) => {
 
       setSession(null);
 
-      window.location.href = "/";
+      localStorage.removeItem("avatarUrl");
+      localStorage.removeItem("history");
+      localStorage.removeItem("currentAI");
+      localStorage.removeItem("models");
+
+      router.replace("/");
     } catch (error) {
       console.error("Error signing out:", error);
     }
   };
   return (
-    <AppwriteContext.Provider value={{ signIn, session, signOut, sessionLoading }}>
+    <AppwriteContext.Provider
+      value={{
+        signIn,
+        session,
+        signOut,
+        sessionLoading,
+        refreshSession: getSession,
+      }}
+    >
       {children}
     </AppwriteContext.Provider>
   );

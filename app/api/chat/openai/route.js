@@ -61,7 +61,7 @@
 //         return NextResponse.json({ error: "Model not found" }, { status: 404 });
 //       }
 //     } catch (error) {
-//       console.log(error);
+//       console.error(error);
 //       return NextResponse.json(
 //         { error: "Something went wrong fetching model name from Appwrite" },
 //         { status: 500 }
@@ -89,7 +89,7 @@
 //       },
 //     });
 //   } catch (error) {
-//     console.log(error);
+//     console.error(error);
 //     return NextResponse.json(
 //       { error: "Something went wrong" },
 //       { status: 500 }

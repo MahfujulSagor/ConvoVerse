@@ -20,10 +20,31 @@ import {
 } from "@/components/ui/sidebar";
 import { useAppwrite } from "@/context/appwrite-context";
 import UserSkeleton from "./UserSkeleton";
+import { useEffect } from "react";
 
-export function NavUser({ user }) {
+export function NavUser() {
   const { isMobile } = useSidebar();
-  const { signOut, sessionLoading } = useAppwrite();
+  const { signOut, sessionLoading, session, refreshSession } = useAppwrite();
+
+  useEffect(() => {
+    refreshSession();
+  }, []);
+
+  if (sessionLoading || !session) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <UserSkeleton />
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
+  }
+
+  const user = {
+    name: session?.name,
+    email: session?.email,
+    avatar: session?.avatar,
+  };
 
   return (
     <SidebarMenu>

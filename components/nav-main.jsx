@@ -1,5 +1,4 @@
 "use client";
-
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -11,7 +10,6 @@ import {
 import { History } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BeatLoader } from "react-spinners";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,10 +19,47 @@ import {
 import { Ellipsis } from "lucide-react";
 import { useAI } from "@/context/ai-context";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import HistorySkeleton from "./historySkeleton";
 
-export function NavMain({ items }) {
+export function NavMain() {
   const pathname = usePathname();
-  const { handleChatHistoryDelete } = useAI();
+  const { handleChatHistoryDelete, history } = useAI();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient || !history) {
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel>History</SidebarGroupLabel>
+        <SidebarMenu>
+          <HistorySkeleton />
+        </SidebarMenu>
+      </SidebarGroup>
+    );
+  }
+
+  const items = history.map((item) => ({
+    title: item.title,
+    url: `/dashboard/chat/${item.$id}`,
+    id: item.$id,
+  }));
+
+  if (items.length === 0) {
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel>History</SidebarGroupLabel>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <div className="text-[#cdcdcd] text-sm text-center">No history found</div>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroup>
+    );
+  }
 
   const handleHistoryDelete = async (historyId) => {
     if (!historyId) {
@@ -42,27 +77,8 @@ export function NavMain({ items }) {
       toast.error("Error deleting history");
     } finally {
       toast.dismiss(toastId);
-      toast.success("History deleted");
     }
   };
-
-  if (!items || items.length === 0) {
-    return (
-      <SidebarGroup>
-        <SidebarGroupLabel>History</SidebarGroupLabel>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              tooltip="Loading History"
-              className="flex items-center justify-center"
-            >
-              <BeatLoader size={10} color="#cdcdcd" />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarGroup>
-    );
-  }
 
   return (
     <SidebarGroup>
