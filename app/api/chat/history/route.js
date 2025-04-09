@@ -25,9 +25,8 @@ export const POST = async (req) => {
   }
 
   try {
-    // Generate a title with just the date, month, and year
     const date = new Date();
-    const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`; // MM/DD/YYYY format
+    const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`; //? MM/DD/YYYY format
     const historyTitle = `New chat - ${formattedDate}`;
 
     const newHistory = await databases.createDocument(
