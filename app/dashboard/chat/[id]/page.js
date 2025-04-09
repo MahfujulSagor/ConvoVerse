@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { useParams } from "next/navigation";
 import { useAppwrite } from "@/context/appwrite-context";
 import ChatSkeleton from "@/components/ChatSkeleton";
+import ToolTip from "@/components/ToolTip";
 
 const inputSchema = z.object({
   message: z.string().nonempty("Message cannot be empty"),
@@ -471,40 +472,44 @@ const Chat = () => {
                 </div>
                 <div className="w-full flex justify-between items-center mt-2">
                   {/* File Input */}
-                  <div>
-                    <Controller
-                      name="files"
-                      control={control}
-                      render={({
-                        field: { value = [], onChange, ...rest },
-                      }) => (
-                        <>
-                          <input
-                            type="file"
-                            multiple
-                            accept="image/*"
-                            id="files"
-                            className="hidden"
-                            onChange={(e) => handleFileChange(e)}
-                            disabled={value.length >= 3}
-                          />
-                          <Button
-                            asChild
-                            variant="ghost"
-                            className={`cursor-pointer flex justify-center items-center text-[#676767] ${
-                              value.length >= 3 &&
-                              "opacity-50 cursor-not-allowed"
-                            }`}
-                            disabled={value.length >= 3}
-                          >
-                            <Label htmlFor="files">
-                              <Paperclip className="size-5" />
-                            </Label>
-                          </Button>
-                        </>
-                      )}
-                    />
-                  </div>
+                  <ToolTip text="We don't support file uploads yet" position="top">
+                    <div>
+                      <Controller
+                        name="files"
+                        control={control}
+                        render={({
+                          field: { value = [], onChange, ...rest },
+                        }) => (
+                          <>
+                            <input
+                              type="file"
+                              multiple
+                              accept="image/*"
+                              id="files"
+                              className="hidden"
+                              onChange={(e) => handleFileChange(e)}
+                              // disabled={value.length >= 3}
+                              disabled={true}
+                            />
+                            <Button
+                              asChild
+                              variant="ghost"
+                              className={`flex justify-center items-center text-[#676767] ${
+                                value.length >= 3 &&
+                                "opacity-50 cursor-not-allowed"
+                              }`}
+                              // disabled={value.length >= 3}
+                              disabled={true}
+                            >
+                              <Label htmlFor="files">
+                                <Paperclip className="size-5" />
+                              </Label>
+                            </Button>
+                          </>
+                        )}
+                      />
+                    </div>
+                  </ToolTip>
                   <div>
                     <Button
                       type="submit"
