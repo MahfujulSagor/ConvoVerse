@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import SyntaxHighlighter from "react-syntax-highlighter";
@@ -8,6 +8,7 @@ import { Button } from "../ui/button";
 import { Copy, CheckCheck } from "lucide-react";
 import { toast } from "sonner";
 import { detectLanguage } from "@/lib/detectLanguage";
+import gsap from "gsap";
 
 const extractCode = (message) => {
   if (message && message.includes("```")) {
@@ -40,6 +41,18 @@ const ChatItem = ({ content, role }) => {
   const [copied, setCopied] = useState({});
   const language = detectLanguage(content);
   const messageBlock = extractCode(content);
+
+  const userMessageRef = useRef(null);
+
+  useEffect(() => {
+    if (role === "user" && userMessageRef.current) {
+      gsap.fromTo(
+        userMessageRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.2, ease: "power2.out" }
+      );
+    }
+  }, [content, role]);
 
   const handleCodeCopy = async (code, index) => {
     try {
@@ -141,7 +154,7 @@ const ChatItem = ({ content, role }) => {
     </div>
   ) : (
     <div className="my-6 w-full flex justify-end items-center md:text-base text-sm">
-      <div className="max-w-3xl bg-secondary rounded-4xl px-5">
+      <div ref={userMessageRef} className="max-w-3xl bg-secondary rounded-4xl px-5">
         <div className="my-2">
           <Markdown>{content}</Markdown>
         </div>

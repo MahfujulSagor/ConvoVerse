@@ -21,7 +21,6 @@ import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
-import { useAppwrite } from "@/context/appwrite-context";
 import ChatSkeleton from "@/components/ChatSkeleton";
 import ToolTip from "@/components/ToolTip";
 
@@ -35,11 +34,11 @@ const inputSchema = z.object({
 const Chat = () => {
   const { id: historyId } = useParams();
   const { currentAI } = useAI();
-  const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState([]); // * Chat messages
-  const [showSkeleton, setShowSkeleton] = useState(false); // * Skeleton loading
-  const [models, setModels] = useState([]); // * Models
-  const [selectedFiles, setSelectedFiles] = useState([]); // * Selected files
+  // const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState([]); //? Chat messages
+  const [showSkeleton, setShowSkeleton] = useState(false); //? Skeleton loading
+  const [models, setModels] = useState([]); //? Models
+  const [selectedFiles, setSelectedFiles] = useState([]); //? Selected files
 
   const responseRef = useRef();
 
@@ -344,12 +343,13 @@ const Chat = () => {
   };
 
   // TODO: Check user balance
-  const handleBalanceClick = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  };
+  //! will be added in the future versions
+  // const handleBalanceClick = () => {
+  //   setLoading(true);
+  //   setTimeout(() => {
+  //     setLoading(false);
+  //   }, 1000);
+  // };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
@@ -393,7 +393,8 @@ const Chat = () => {
           />
         </div>
         {/* Balance */}
-        <Button
+        {/* //! will be added in the future versions */}
+        {/* <Button
           variant="ghost"
           onClick={handleBalanceClick}
           className="border border-dashed rounded-4xl mr-8 cursor-pointer"
@@ -408,7 +409,7 @@ const Chat = () => {
               <div className="text-sm font-medium text-teal-400">$10.00</div>
             </div>
           )}
-        </Button>
+        </Button>*/}
       </div>
       <div className="max-w-3xl w-full mx-auto relative min-h-screen">
         <div className="mr-8">
@@ -472,7 +473,10 @@ const Chat = () => {
                 </div>
                 <div className="w-full flex justify-between items-center mt-2">
                   {/* File Input */}
-                  <ToolTip text="We don't support file uploads yet" position="top">
+                  <ToolTip
+                    text="We don't support file uploads yet"
+                    position="top"
+                  >
                     <div>
                       <Controller
                         name="files"
