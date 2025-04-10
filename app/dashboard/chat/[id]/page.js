@@ -20,7 +20,7 @@ import { useAI } from "@/context/ai-context";
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import ChatSkeleton from "@/components/ChatSkeleton";
 import ToolTip from "@/components/ToolTip";
 
@@ -33,7 +33,11 @@ const inputSchema = z.object({
 
 const Chat = () => {
   const { id: historyId } = useParams();
-  const { currentAI } = useAI();
+  const router = useRouter();
+
+  const [deletedHistoryHandled, setDeletedHistoryHandled] = useState(false);
+
+  const { currentAI, deletedHistory } = useAI();
   // const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]); //? Chat messages
   const [showSkeleton, setShowSkeleton] = useState(false); //? Skeleton loading
@@ -83,8 +87,19 @@ const Chat = () => {
       }
     };
 
-    fetchConversations();
-  }, [historyId]);
+    //? Check if history is deleted
+    if (deletedHistory === historyId) {
+      if (!deletedHistoryHandled) {
+        toast.error("This conversation has been deleted.");
+        router.push("/dashboard");
+        setDeletedHistoryHandled(true);
+      }
+      return;
+    } else {
+      //? Fetch conversations
+      fetchConversations();
+    }
+  }, [historyId, deletedHistory, router, deletedHistoryHandled]);
 
   //* Fetch available models
   useEffect(() => {
@@ -362,48 +377,54 @@ const Chat = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
-      {/* Navbar */}
-      <div className="sticky top-0 z-2 flex justify-between items-center bg-background w-full">
-        {/* Model selector */}
-        <div className="flex justify-between items-center py-4 px-2">
-          <Controller
-            name="model_id"
-            control={control}
-            render={({ field }) => (
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-                className=""
-              >
-                <SelectTrigger className="w-[140px] md:w-[180px]">
-                  <SelectValue placeholder="Select Model" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {models.length > 0 ? (
-                      models.map((model, index) => (
-                        <SelectItem key={index} value={model.$id}>
-                          {model.display_name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem
-                        disabled
-                        value="Loading"
-                        className="flex justify-center items-center"
-                      >
-                        <BeatLoader color="oklch(0.985 0 0)" />
-                      </SelectItem>
-                    )}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            )}
-          />
+      {historyId === deletedHistory ? (
+        <div className="w-full min-h-screen flex justify-center items-center">
+          <p className="text-xl text-rose-500">This chat has been deleted</p>
         </div>
-        {/* Balance */}
-        {/* will be added in the future versions */}
-        {/* <Button
+      ) : (
+        <>
+          {/* Navbar */}
+          <div className="sticky top-0 z-2 flex justify-between items-center bg-background w-full">
+            {/* Model selector */}
+            <div className="flex justify-between items-center py-4 px-2">
+              <Controller
+                name="model_id"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className=""
+                  >
+                    <SelectTrigger className="w-[140px] md:w-[180px]">
+                      <SelectValue placeholder="Select Model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {models.length > 0 ? (
+                          models.map((model, index) => (
+                            <SelectItem key={index} value={model.$id}>
+                              {model.display_name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem
+                            disabled
+                            value="Loading"
+                            className="flex justify-center items-center"
+                          >
+                            <BeatLoader color="oklch(0.985 0 0)" />
+                          </SelectItem>
+                        )}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+            {/* Balance */}
+            {/* will be added in the future versions */}
+            {/* <Button
           variant="ghost"
           onClick={handleBalanceClick}
           className="border border-dashed rounded-4xl mr-8 cursor-pointer"
@@ -419,125 +440,127 @@ const Chat = () => {
             </div>
           )}
         </Button> */}
-      </div>
-      <div className="max-w-3xl w-full mx-auto relative min-h-screen">
-        <div className="mr-8">
-          {/* Chats */}
-          <div className="overflow-y-auto">
-            <div className="min-h-[80vh] code-blocks max-w-[700px] mx-auto mb-20">
-              {messages.length > 0 &&
-                messages.map((message, index) => (
-                  <ChatItem
-                    key={index}
-                    content={message.content}
-                    role={message.role}
-                  />
-                ))}
-              {showSkeleton && <ChatSkeleton />}
-            </div>
           </div>
-          {/* Input */}
-          <div className="w-full max-w-3xl bg-background pb-8 sticky bottom-0 flex justify-center items-center">
-            <div className="w-full min-h-20 rounded-2xl p-4 border border-dashed">
-              {/* Image Preview */}
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  {selectedFiles &&
-                    selectedFiles.length > 0 &&
-                    selectedFiles.map((url, index) => (
-                      <div key={index} className="relative">
-                        <Image
-                          src={url}
-                          height={100}
-                          width={100}
-                          alt={`Preview ${index}`}
-                          className="rounded-lg object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleFileRemove(index)}
-                          className="absolute top-1 right-1 cursor-pointer p-1 rounded-2xl bg-secondary hover:bg-secondary/50 ease-in-out duration-100"
-                        >
-                          <X className="size-4" />
-                        </button>
-                      </div>
+          <div className="max-w-3xl w-full mx-auto relative min-h-screen">
+            <div className="mr-8">
+              {/* Chats */}
+              <div className="overflow-y-auto">
+                <div className="min-h-[80vh] code-blocks max-w-[700px] mx-auto mb-20">
+                  {messages.length > 0 &&
+                    messages.map((message, index) => (
+                      <ChatItem
+                        key={index}
+                        content={message.content}
+                        role={message.role}
+                      />
                     ))}
+                  {showSkeleton && <ChatSkeleton />}
                 </div>
               </div>
-              {/* Prompt Input */}
-              <div>
-                <div className="w-full flex justify-center items-center">
-                  <Textarea
-                    autoFocus
-                    {...register("message")}
-                    className="max-h-72 ChatInput border-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0 resize-none font-medium w-full text-white dark:bg-background"
-                    placeholder="Ask anything"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSubmit(onSubmit)();
-                      }
-                    }}
-                  />
-                </div>
-                <div className="w-full flex justify-between items-center mt-2">
-                  {/* File Input */}
-                  <ToolTip
-                    text="We don't support file uploads yet"
-                    position="top"
-                  >
-                    <div>
-                      <Controller
-                        name="files"
-                        control={control}
-                        render={({
-                          field: { value = [], onChange, ...rest },
-                        }) => (
-                          <>
-                            <input
-                              type="file"
-                              multiple
-                              accept="image/*"
-                              id="files"
-                              className="hidden"
-                              onChange={(e) => handleFileChange(e)}
-                              // disabled={value.length >= 3}
-                              disabled={true}
+              {/* Input */}
+              <div className="w-full max-w-3xl bg-background pb-8 sticky bottom-0 flex justify-center items-center">
+                <div className="w-full min-h-20 rounded-2xl p-4 border border-dashed">
+                  {/* Image Preview */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      {selectedFiles &&
+                        selectedFiles.length > 0 &&
+                        selectedFiles.map((url, index) => (
+                          <div key={index} className="relative">
+                            <Image
+                              src={url}
+                              height={100}
+                              width={100}
+                              alt={`Preview ${index}`}
+                              className="rounded-lg object-cover"
                             />
-                            <Button
-                              asChild
-                              variant="ghost"
-                              className={`flex justify-center items-center text-[#676767] ${
-                                value.length >= 3 &&
-                                "opacity-50 cursor-not-allowed"
-                              }`}
-                              // disabled={value.length >= 3}
-                              disabled={true}
+                            <button
+                              type="button"
+                              onClick={() => handleFileRemove(index)}
+                              className="absolute top-1 right-1 cursor-pointer p-1 rounded-2xl bg-secondary hover:bg-secondary/50 ease-in-out duration-100"
                             >
-                              <Label htmlFor="files">
-                                <Paperclip className="size-5" />
-                              </Label>
-                            </Button>
-                          </>
-                        )}
+                              <X className="size-4" />
+                            </button>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                  {/* Prompt Input */}
+                  <div>
+                    <div className="w-full flex justify-center items-center">
+                      <Textarea
+                        autoFocus
+                        {...register("message")}
+                        className="max-h-72 ChatInput border-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0 resize-none font-medium w-full text-white dark:bg-background"
+                        placeholder="Ask anything"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSubmit(onSubmit)();
+                          }
+                        }}
                       />
                     </div>
-                  </ToolTip>
-                  <div>
-                    <Button
-                      type="submit"
-                      variant="ghost"
-                      className="cursor-pointer flex justify-center items-center text-[#676767]"
-                    >
-                      <SendHorizonal className="size-5" />
-                    </Button>
+                    <div className="w-full flex justify-between items-center mt-2">
+                      {/* File Input */}
+                      <ToolTip
+                        text="We don't support file uploads yet"
+                        position="top"
+                      >
+                        <div>
+                          <Controller
+                            name="files"
+                            control={control}
+                            render={({
+                              field: { value = [], onChange, ...rest },
+                            }) => (
+                              <>
+                                <input
+                                  type="file"
+                                  multiple
+                                  accept="image/*"
+                                  id="files"
+                                  className="hidden"
+                                  onChange={(e) => handleFileChange(e)}
+                                  // disabled={value.length >= 3}
+                                  disabled={true}
+                                />
+                                <Button
+                                  asChild
+                                  variant="ghost"
+                                  className={`flex justify-center items-center text-[#676767] ${
+                                    value.length >= 3 &&
+                                    "opacity-50 cursor-not-allowed"
+                                  }`}
+                                  // disabled={value.length >= 3}
+                                  disabled={true}
+                                >
+                                  <Label htmlFor="files">
+                                    <Paperclip className="size-5" />
+                                  </Label>
+                                </Button>
+                              </>
+                            )}
+                          />
+                        </div>
+                      </ToolTip>
+                      <div>
+                        <Button
+                          type="submit"
+                          variant="ghost"
+                          className="cursor-pointer flex justify-center items-center text-[#676767]"
+                        >
+                          <SendHorizonal className="size-5" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </form>
   );
 };
