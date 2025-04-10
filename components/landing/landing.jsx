@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
 import mac from "@/public/macbook_mockup.webp";
 import iphone from "@/public/iPhone_mockup.webp";
@@ -14,7 +14,7 @@ const Landing = () => {
   const headingRef = useRef(null);
   const textRef = useRef(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const desktopDiv = desktopDivRef.current;
     const iphoneDiv = iphoneDivRef.current;
     const heading = headingRef.current;
@@ -22,47 +22,51 @@ const Landing = () => {
 
     if (!desktopDiv || !iphoneDiv || !heading || !text) return;
 
-    gsap.from(heading, {
-      opacity: 0,
-      y: -20,
-      duration: 1,
-      ease: "power2.out",
-    });
-
-    gsap.from(text, {
-      opacity: 0,
-      y: 20,
-      duration: 1,
-      ease: "power2.out",
-    });
-
-    gsap.fromTo(
-      iphoneDiv,
-      {
+    const ctx = gsap.context(() => {
+      gsap.from(heading, {
         opacity: 0,
-        x: 200,
-      },
-      {
-        opacity: 1,
-        x: 0,
+        y: -20,
         duration: 1,
         ease: "power2.out",
-      }
-    );
+      });
 
-    gsap.fromTo(
-      desktopDiv,
-      {
+      gsap.from(text, {
         opacity: 0,
-        x: -200,
-      },
-      {
-        opacity: 1,
-        x: 0,
+        y: 20,
         duration: 1,
         ease: "power2.out",
-      }
-    );
+      });
+
+      gsap.fromTo(
+        iphoneDiv,
+        {
+          opacity: 0,
+          x: 200,
+        },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 1,
+          ease: "power2.out",
+        }
+      );
+
+      gsap.fromTo(
+        desktopDiv,
+        {
+          opacity: 0,
+          x: -200,
+        },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 1,
+          ease: "power2.out",
+        }
+      );
+    });
+
+    return () => ctx.revert();
   }, []);
 
   return (

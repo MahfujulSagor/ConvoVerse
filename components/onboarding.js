@@ -1,18 +1,22 @@
 "use client";
 import gsap from "gsap";
-import React, { useEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 
 const Onboarding = () => {
   const onboardingRef = useRef(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!onboardingRef.current) return;
 
-    gsap.fromTo(
-      onboardingRef.current,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
-    );
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        onboardingRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+      );
+    });
+
+    return () => ctx.revert();
   }, []);
 
   return (

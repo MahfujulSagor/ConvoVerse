@@ -1,10 +1,9 @@
 "use client";
-import Loader from "@/components/Loader";
 import Onboarding from "@/components/onboarding";
 import { useAI } from "@/context/ai-context";
 import gsap from "gsap";
 import { ArrowUpRight } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { BeatLoader } from "react-spinners";
 import { toast } from "sonner";
 
@@ -15,21 +14,12 @@ const Dashboard = () => {
   const arrowDivRef = useRef(null);
   const buttonRef = useRef(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const btn = buttonRef.current;
     const arrow = arrowRef.current;
     const arrowDiv = arrowDivRef.current;
 
-    if (!btn || !arrow) return;
-
-    gsap.fromTo(
-      btn,
-      { scale: 0 },
-      { scale: 1, duration: 0.5, ease: "power2.out" }
-    );
-
-    gsap.set(arrow, { scale: 0, opacity: 0 });
-    gsap.set(arrowDiv, { scale: 0.4 });
+    if (!btn || !arrow || !arrowDiv) return;
 
     const handleEnter = () => {
       gsap.to(arrow, {
@@ -59,10 +49,22 @@ const Dashboard = () => {
       });
     };
 
-    btn.addEventListener("mouseenter", handleEnter);
-    btn.addEventListener("mouseleave", handleLeave);
+    const ctx = gsap.context(() => {
+      gsap.set(arrow, { scale: 0, opacity: 0 });
+      gsap.set(arrowDiv, { scale: 0.4 });
+
+      gsap.fromTo(
+        btn,
+        { scale: 0 },
+        { scale: 1, duration: 0.5, ease: "power2.out" }
+      );
+
+      btn.addEventListener("mouseenter", handleEnter);
+      btn.addEventListener("mouseleave", handleLeave);
+    });
 
     return () => {
+      ctx.revert();
       btn.removeEventListener("mouseenter", handleEnter);
       btn.removeEventListener("mouseleave", handleLeave);
     };
@@ -95,7 +97,9 @@ const Dashboard = () => {
             </div>
           ) : (
             <>
-              <span className="md:ml-4 md:text-lg text-base font-medium">Start chating</span>
+              <span className="md:ml-4 md:text-lg text-base font-medium">
+                Start chating
+              </span>
               <div
                 ref={arrowDivRef}
                 className="bg-foreground p-3 text-background rounded-full md:flex hidden"
