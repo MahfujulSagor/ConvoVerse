@@ -2,7 +2,7 @@
 import gsap from "gsap";
 import { ArrowUpRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 
 const AnimateButton = ({ textClass = "", text = "", routerPath = "" }) => {
   const router = useRouter();
@@ -11,15 +11,12 @@ const AnimateButton = ({ textClass = "", text = "", routerPath = "" }) => {
   const arrowRef = useRef(null);
   const arrowDivRef = useRef(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const btn = buttonRef.current;
     const arrow = arrowRef.current;
     const arrowDiv = arrowDivRef.current;
 
     if (!btn || !arrow || !arrowDiv) return;
-
-    gsap.set(arrow, { scale: 0, opacity: 0 });
-    gsap.set(arrowDiv, { scale: 0.4 });
 
     const handleEnter = () => {
       gsap.to(arrow, {
@@ -61,17 +58,22 @@ const AnimateButton = ({ textClass = "", text = "", routerPath = "" }) => {
       });
     };
 
-    gsap.from(btn, {
-      opacity: 0,
-      scale: 0.5,
-      duration: 0.5,
-      ease: "power2.out",
+    const ctx = gsap.context(() => {
+      gsap.set(arrow, { scale: 0, opacity: 0 });
+      gsap.set(arrowDiv, { scale: 0.4 });
+      gsap.from(btn, {
+        opacity: 0,
+        scale: 0.5,
+        duration: 0.5,
+        ease: "power2.out",
+      });
+
+      btn.addEventListener("mouseenter", handleEnter);
+      btn.addEventListener("mouseleave", handleLeave);
     });
 
-    btn.addEventListener("mouseenter", handleEnter);
-    btn.addEventListener("mouseleave", handleLeave);
-
     return () => {
+      ctx.revert();
       btn.removeEventListener("mouseenter", handleEnter);
       btn.removeEventListener("mouseleave", handleLeave);
     };

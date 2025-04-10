@@ -19,7 +19,7 @@ import {
 import { Ellipsis } from "lucide-react";
 import { useAI } from "@/context/ai-context";
 import { toast } from "sonner";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import HistorySkeleton from "./historySkeleton";
 import gsap from "gsap";
 
@@ -29,24 +29,42 @@ export function NavMain() {
   const [isClient, setIsClient] = useState(false);
 
   const menuItemsRef = useRef([]);
+  const hasAnimatedOnce = useRef(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  useEffect(() => {
-    //? Staggered animation when the history items are updated
-    if (history && menuItemsRef.current.length > 0) {
-      gsap.fromTo(
-        menuItemsRef.current,
-        { y: -10, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          stagger: 0.2,
-          ease: "power2.out",
-        }
-      );
+  useLayoutEffect(() => {
+    if (
+      !history ||
+      menuItemsRef.current.length === 0 ||
+      hasAnimatedOnce.current
+    )
+      return;
+
+    const items = history.map((item) => ({
+      title: item.title,
+      url: `/dashboard/chat/${item.$id}`,
+      id: item.$id,
+    }));
+
+    if (items.length > 0) {
+      const ctx = gsap.context(() => {
+        gsap.fromTo(
+          menuItemsRef.current,
+          { y: -10, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            stagger: 0.2,
+            ease: "power2.out",
+          }
+        );
+      });
+      hasAnimatedOnce.current = true;
+
+      return () => ctx.revert();
     }
   }, [history]);
 

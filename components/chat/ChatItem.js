@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import SyntaxHighlighter from "react-syntax-highlighter";
@@ -44,13 +44,17 @@ const ChatItem = ({ content, role }) => {
 
   const userMessageRef = useRef(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (role === "user" && userMessageRef.current) {
-      gsap.fromTo(
-        userMessageRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.2, ease: "power2.out" }
-      );
+      const ctx = gsap.context(() => {
+        gsap.fromTo(
+          userMessageRef.current,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.2, ease: "power2.out" }
+        );
+      });
+
+      return () => ctx.revert();
     }
   }, [content, role]);
 
@@ -154,7 +158,10 @@ const ChatItem = ({ content, role }) => {
     </div>
   ) : (
     <div className="my-6 w-full flex justify-end items-center md:text-base text-sm">
-      <div ref={userMessageRef} className="max-w-3xl bg-secondary rounded-4xl px-5">
+      <div
+        ref={userMessageRef}
+        className="max-w-3xl bg-secondary rounded-4xl px-5"
+      >
         <div className="my-2">
           <Markdown>{content}</Markdown>
         </div>
