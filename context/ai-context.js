@@ -34,18 +34,9 @@ export const AIProvider = ({ children }) => {
   const router = useRouter();
   const { session } = useAppwrite();
   const [isClient, setIsClient] = useState(false);
-  // const [currentAI, setCurrentAI] = useState(() => {
-  //   if (typeof window === "undefined") return AI[0]; //* SSR Safety
-  //   try {
-  //     const storedAI = localStorage.getItem("currentAI");
-  //     return storedAI ? JSON.parse(storedAI) : AI[0];
-  //   } catch (error) {
-  //     console.error("Error getting AI from localStorage", error);
-  //     return AI[0];
-  //   }
-  // });
   const [currentAI, setCurrentAI] = useState(AI[0]);
   const [history, setHistory] = useState([]);
+  const [deletedHistory, setDeletedHistory] = useState(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -186,6 +177,14 @@ export const AIProvider = ({ children }) => {
       return;
     }
 
+    //? Optimistic UI: Immediately remove from UI before server confirms
+    const updatedHistory = history.filter((item) => item.$id !== historyId);
+    setHistory(updatedHistory);
+    if (isClient) {
+      localStorage.setItem("history", JSON.stringify(updatedHistory));
+    }
+    setDeletedHistory(historyId);
+
     try {
       const response = await fetch("/api/chat/history", {
         method: "DELETE",
@@ -201,18 +200,17 @@ export const AIProvider = ({ children }) => {
       if (!response.ok) {
         console.error("Error deleting chat history:", response.statusText);
         toast.error("Failed to delete chat history");
+        //? Rollback the optimistic delete if needed
+        setHistory((prevHistory) => [...updatedHistory, ...prevHistory]);
         return;
       }
 
-      const updatedHistory = history.filter((item) => item.$id !== historyId);
-      setHistory(updatedHistory);
-      if (isClient) {
-        localStorage.setItem("history", JSON.stringify(updatedHistory));
-      }
       toast.success("Chat history deleted successfully");
     } catch (error) {
       console.error("Error deleting chat history:", error);
       toast.error("Failed to delete chat history");
+      //? Rollback the optimistic delete if needed
+      setHistory((prevHistory) => [...updatedHistory, ...prevHistory]);
     }
   };
 
@@ -225,6 +223,7 @@ export const AIProvider = ({ children }) => {
         handleNewChat,
         history,
         handleChatHistoryDelete,
+        deletedHistory,
       }}
     >
       {children}
