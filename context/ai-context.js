@@ -76,7 +76,15 @@ export const AIProvider = ({ children }) => {
         return;
       }
       try {
-        const response = await fetch(`/api/chat/history?userId=${session.$id}`);
+        const response = await fetch(
+          `/api/chat/history?userId=${session.$id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (!response.ok) {
           console.error("Error fetching chat history:", response.statusText);
           toast.error("Failed to fetch chat history");

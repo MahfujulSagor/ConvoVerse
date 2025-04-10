@@ -29,8 +29,8 @@ export const AppwriteProvider = ({ children }) => {
     try {
       account.createOAuth2Token(
         OAuthProvider.Google,
-        `http://localhost:3000/auth/callback`,
-        "http://localhost:3000/auth/get-started"
+        `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/auth/get-started`
       );
     } catch (error) {
       console.error("Error signing in:", error);
