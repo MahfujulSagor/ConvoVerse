@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import Deepseek from "@/public/deepseek.svg";
 import Gemini from "@/public/gemini.svg";
+import Meta from "@/public/meta.svg";
+import Nvidia from "@/public/nvidia.svg";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useAppwrite } from "./appwrite-context";
@@ -27,6 +29,16 @@ const AI = [
     name: "Gemini",
     logo: Gemini,
     organization: "gemini",
+  },
+  {
+    name: "Meta",
+    logo: Meta,
+    organization: "meta",
+  },
+  {
+    name: "Nvidia",
+    logo: Nvidia,
+    organization: "nvidia",
   },
 ];
 

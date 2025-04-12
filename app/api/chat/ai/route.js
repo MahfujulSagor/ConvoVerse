@@ -64,7 +64,7 @@ export const POST = async (req) => {
     }
   }
 
-  const modifiedPrompt = `Provide a short but complete answer to the following question: ${prompt}`;
+  const modifiedPrompt = `Provide a short but complete answer to the following prompt (NOTE: if greating type prompt keep it short): ${prompt}`;
 
   try {
     const response = await fetch(process.env.OPENROUTER_BASE_URL, {
