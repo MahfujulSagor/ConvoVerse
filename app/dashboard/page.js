@@ -1,4 +1,5 @@
 "use client";
+import Balance from "@/components/CreditBalance";
 import Onboarding from "@/components/onboarding";
 import { useAI } from "@/context/ai-context";
 import gsap from "gsap";
@@ -83,32 +84,37 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center justify-center">
-      <Onboarding />
-      <div className="w-full flex flex-col items-center justify-center">
-        <button
-          ref={buttonRef}
-          onClick={handleButtonClick}
-          className="mt-8 p-2 cursor-pointer bg-muted rounded-full flex md:justify-between justify-center items-center gap-2"
-        >
-          {loading ? (
-            <div className="flex items-center justify-center w-full min-w-[150px] min-h-[44px]">
-              <BeatLoader color="oklch(0.985 0 0)" />
-            </div>
-          ) : (
-            <>
-              <span className="md:ml-4 md:text-lg text-base font-medium">
-                Start chating
-              </span>
-              <div
-                ref={arrowDivRef}
-                className="bg-foreground p-3 text-background rounded-full md:flex hidden"
-              >
-                <ArrowUpRight ref={arrowRef} />
+    <div className="w-full min-h-screen">
+      <div className="w-full flex justify-end items-center p-4">
+        <Balance />
+      </div>
+      <div className="w-full min-h-screen flex flex-col items-center justify-center">
+        <Onboarding />
+        <div className="w-full flex flex-col items-center justify-center">
+          <button
+            ref={buttonRef}
+            onClick={handleButtonClick}
+            className="mt-8 p-2 cursor-pointer bg-muted rounded-full flex md:justify-between justify-center items-center gap-2"
+          >
+            {loading ? (
+              <div className="flex items-center justify-center w-full min-w-[150px] min-h-[44px]">
+                <BeatLoader color="oklch(0.985 0 0)" />
               </div>
-            </>
-          )}
-        </button>
+            ) : (
+              <>
+                <span className="md:ml-4 md:text-lg text-base font-medium">
+                  Start chating
+                </span>
+                <div
+                  ref={arrowDivRef}
+                  className="bg-foreground p-3 text-background rounded-full md:flex hidden"
+                >
+                  <ArrowUpRight ref={arrowRef} />
+                </div>
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
