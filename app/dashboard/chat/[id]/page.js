@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import ChatSkeleton from "@/components/ChatSkeleton";
 import ToolTip from "@/components/ToolTip";
+import Balance from "@/components/CreditBalance";
 
 const inputSchema = z.object({
   message: z.string().nonempty("Message cannot be empty"),
@@ -38,7 +39,6 @@ const Chat = () => {
   const [deletedHistoryHandled, setDeletedHistoryHandled] = useState(false);
 
   const { currentAI, deletedHistory } = useAI();
-  // const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]); //? Chat messages
   const [showSkeleton, setShowSkeleton] = useState(false); //? Skeleton loading
   const [models, setModels] = useState([]); //? Models
@@ -401,15 +401,6 @@ const Chat = () => {
     }
   };
 
-  // TODO: Check user balance
-  //! will be added in the future versions
-  // const handleBalanceClick = () => {
-  //   setLoading(true);
-  //   setTimeout(() => {
-  //     setLoading(false);
-  //   }, 1000);
-  // };
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
       {historyId === deletedHistory ? (
@@ -458,23 +449,7 @@ const Chat = () => {
               />
             </div>
             {/* Balance */}
-            {/* will be added in the future versions */}
-            {/* <Button
-          variant="ghost"
-          onClick={handleBalanceClick}
-          className="border border-dashed rounded-4xl mr-8 cursor-pointer"
-        >
-          {loading ? (
-            <div className="flex justify-center items-center px-4">
-              <BeatLoader color="oklch(0.985 0 0)" />
-            </div>
-          ) : (
-            <div className="flex justify-between items-center gap-1">
-              <div className="text-sm font-medium">Balance:</div>
-              <div className="text-sm font-medium text-teal-400">$10.00</div>
-            </div>
-          )}
-        </Button> */}
+            <Balance />
           </div>
           <div className="max-w-3xl w-full mx-auto relative min-h-screen">
             <div className="mr-8">
