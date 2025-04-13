@@ -331,13 +331,18 @@ const Chat = () => {
       const fullResponse = responseRef.current;
       const prompt = data.message;
 
+      //? Store conversation history
       await storeConversationHistory({ prompt, fullResponse, historyId });
+
+      //? Calculate cost
+      await calculateCost(model_id, prompt, fullResponse);
     } catch (error) {
-      console.error(error);
+      console.error("Error while processing prompt", error);
       resetField("message");
     }
   };
 
+  //* Store conversation history
   const storeConversationHistory = async ({
     prompt,
     fullResponse,
@@ -363,6 +368,36 @@ const Chat = () => {
     } catch (error) {
       console.error("Error storing chat history:", error);
       toast.error("Error storing chat history");
+    }
+  };
+
+  //* Calculate cost
+  const calculateCost = async (modelId, prompt, aiResponse) => {
+    if (!modelId || !prompt || !aiResponse) {
+      console.error("Missing parameters for cost calculation");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/chat/token", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          modelId,
+          prompt,
+          aiResponse,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to calculate cost");
+        return;
+      }
+    } catch (error) {
+      console.error("Error calculating cost:", error);
+      toast.error("Error calculating cost");
     }
   };
 
