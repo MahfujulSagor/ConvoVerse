@@ -232,7 +232,6 @@ const Chat = () => {
                 const content = parsed.choices[0]?.delta.content || "";
 
                 if (!content) {
-                  console.warn("No content found in response");
                   continue;
                 }
 

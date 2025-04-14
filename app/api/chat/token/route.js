@@ -143,13 +143,6 @@ export const PUT = async (req) => {
       );
     }
 
-    console.log("User credits updated successfully", {
-      userId,
-      old_credits: user_credits,
-      new_credits,
-      total_cost,
-    });
-
     return NextResponse.json(
       {
         message: "Cost calculated and deducted successfully",
