@@ -80,3 +80,58 @@ export const POST = async (req) => {
     );
   }
 };
+
+//* Get user data
+export const GET = async (req) => {
+  const url = new URL(req.url);
+  const userId = url.searchParams.get("userId");
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get("session_token")?.value;
+
+  if (!userId) {
+    return NextResponse.json(
+      { message: "User data not found!" },
+      { status: 404 }
+    );
+  }
+
+  if (!sessionToken) {
+    return NextResponse.json(
+      { message: "Unauthorized request!" },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const user = await databases.getDocument(
+      process.env.APPWRITE_DATABASE_ID,
+      process.env.APPWRITE_USERS_COLLECTION_ID,
+      userId
+    );
+
+    if (!user) {
+      return NextResponse.json(
+        { message: "User data not found!" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      user.credits,
+      {
+        message: "User data fetched successfully",
+      },
+      {
+        status: 200,
+      }
+    );
+  } catch (error) {
+    console.error("Server error while fetching user data: ", error);
+    return NextResponse.json(
+      { message: "Server Error" },
+      {
+        status: 500,
+      }
+    );
+  }
+};

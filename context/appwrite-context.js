@@ -51,10 +51,28 @@ export const AppwriteProvider = ({ children }) => {
         return;
       }
 
+      const userData = await fetch(`/api/auth/user?userId=${sessionData.$id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!userData) {
+        console.error("No user data found");
+        setSession(null);
+        setSessionLoading(false);
+        return;
+      }
+
+      const userCredits = await userData.json();
+
       if (storedAvatar) {
         setSession(() => ({
           ...sessionData,
           avatar: storedAvatar,
+          credits: userCredits,
         }));
         return;
       }
@@ -90,10 +108,7 @@ export const AppwriteProvider = ({ children }) => {
 
       setSession(null);
 
-      localStorage.removeItem("avatarUrl");
-      localStorage.removeItem("history");
-      localStorage.removeItem("currentAI");
-      localStorage.removeItem("models");
+      localStorage.clear();
 
       router.replace("/");
     } catch (error) {
