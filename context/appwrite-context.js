@@ -2,7 +2,8 @@
 import { account, avatars } from "@/lib/appwrite";
 import { OAuthProvider } from "appwrite";
 import { useRouter } from "next/navigation";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext } from "react";
+import useSWR from "swr";
 
 const AppwriteContext = createContext();
 
@@ -14,15 +15,57 @@ export const useAppwrite = () => {
   return context;
 };
 
+//* 🔁 SWR fetcher
+const fetchSession = async () => {
+  const sessionData = await account.get();
+
+  if (!sessionData) return null;
+
+  const res = await fetch(`/api/auth/user?userId=${sessionData.$id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch user data");
+
+  const userCredits = await res.json();
+
+  const storedAvatar = localStorage.getItem("avatarUrl");
+
+  if (storedAvatar) {
+    return {
+      ...sessionData,
+      avatar: storedAvatar,
+      credits: userCredits,
+    };
+  }
+
+  const avatarUrl = avatars.getInitials(sessionData.name || "User");
+  localStorage.setItem("avatarUrl", avatarUrl);
+
+  return {
+    ...sessionData,
+    avatar: avatarUrl,
+    credits: userCredits,
+  };
+};
+
 export const AppwriteProvider = ({ children }) => {
   const router = useRouter();
 
-  const [session, setSession] = useState(null);
-  const [sessionLoading, setSessionLoading] = useState(true);
-
-  useEffect(() => {
-    getSession();
-  }, []);
+  const {
+    data: session,
+    isLoading: sessionLoading,
+    mutate: refreshSession,
+    error,
+  } = useSWR("userSession", fetchSession, {
+    dedupingInterval: 60000, //? 1 minute – prevent repeated fetches within that window
+    revalidateOnFocus: false, //? disable refresh on tab switch
+    revalidateOnReconnect: false, //? optional: disable on reconnect
+  });
 
   //* Sign in with Google
   const signIn = async () => {
@@ -37,65 +80,6 @@ export const AppwriteProvider = ({ children }) => {
     }
   };
 
-  //* Get current session
-  const getSession = async () => {
-    //* Timeout for the session to be created
-    const storedAvatar = localStorage.getItem("avatarUrl");
-
-    try {
-      const sessionData = await account.get();
-
-      if (!sessionData) {
-        setSession(null);
-        setSessionLoading(false);
-        return;
-      }
-
-      const userData = await fetch(`/api/auth/user?userId=${sessionData.$id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      if (!userData) {
-        console.error("No user data found");
-        setSession(null);
-        setSessionLoading(false);
-        return;
-      }
-
-      const userCredits = await userData.json();
-
-      if (storedAvatar) {
-        setSession(() => ({
-          ...sessionData,
-          avatar: storedAvatar,
-          credits: userCredits,
-        }));
-        return;
-      }
-
-      const avatarUrl = avatars.getInitials(sessionData.name || "User");
-      localStorage.setItem("avatarUrl", avatarUrl);
-
-      setSession(() => ({
-        ...sessionData,
-        avatar: avatarUrl,
-      }));
-    } catch (error) {
-      if (error.message.includes("missing scope (account)")) {
-        console.warn("Guest user detected.");
-      } else {
-        console.error("Error fetching session:", error);
-      }
-      setSession(null);
-    } finally {
-      setSessionLoading(false);
-    }
-  };
-
   //* Sign out
   const signOut = async () => {
     try {
@@ -106,9 +90,9 @@ export const AppwriteProvider = ({ children }) => {
         credentials: "include",
       });
 
-      setSession(null);
-
       localStorage.clear();
+
+      refreshSession();
 
       router.replace("/");
     } catch (error) {
@@ -122,7 +106,7 @@ export const AppwriteProvider = ({ children }) => {
         session,
         signOut,
         sessionLoading,
-        refreshSession: getSession,
+        refreshSession,
       }}
     >
       {children}

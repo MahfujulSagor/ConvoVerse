@@ -24,11 +24,7 @@ import { useEffect } from "react";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { signOut, sessionLoading, session, refreshSession } = useAppwrite();
-
-  useEffect(() => {
-    refreshSession();
-  }, []);
+  const { signOut, sessionLoading, session } = useAppwrite();
 
   if (sessionLoading || !session) {
     return (
