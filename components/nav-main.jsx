@@ -57,7 +57,7 @@ export function NavMain() {
           {
             y: 0,
             opacity: 1,
-            stagger: 0.2,
+            stagger: 0.1,
             ease: "power2.out",
           }
         );

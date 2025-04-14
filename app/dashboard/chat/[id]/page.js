@@ -214,7 +214,7 @@ const Chat = () => {
                     {
                       role: "assistant",
                       content:
-                        "The system is currently unavailable due to high demand. Please try again later.",
+                        "❌ The system is currently unavailable due to high demand. Please try again later.",
                     },
                   ]);
                   return;
