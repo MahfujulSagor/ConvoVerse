@@ -1,15 +1,27 @@
 //* Calculates the token usage for a single conversation and returns the total credits used and cost based on the model's pricing
 import { databases } from "@/lib/appwrite";
 import { LlamaTokenizer } from "llama-tokenizer-js";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export const PUT = async (req) => {
-  const { modelId, prompt, aiResponse } = await req.json();
+  const { modelId, prompt, aiResponse, userId } = await req.json();
 
-  if (!modelId || !prompt || !aiResponse) {
+  if (!modelId || !prompt || !aiResponse || !userId) {
     return NextResponse.json(
       { message: "Missing required params" },
       { status: 400 }
+    );
+  }
+
+  //? Check if user is authorized
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get("session_token")?.value;
+
+  if (!sessionToken) {
+    return NextResponse.json(
+      { message: "Unauthorized request" },
+      { status: 401 }
     );
   }
 
@@ -21,42 +33,131 @@ export const PUT = async (req) => {
   const tokensUsed = tokenizer.encode(FULL_DATA);
   const totalTokens = tokensUsed.length;
 
+  let tokens_per_credit, price_per_million_tokens;
+
+  //* Check if the model pricing is cached in cookies
+  const cached_pricing_json = cookieStore.get("model_pricing")?.value;
+  const cachedPricing = cached_pricing_json
+    ? JSON.parse(cached_pricing_json)
+    : {};
+  const cachedModelId = cookieStore.get("model_id")?.value;
+
+  if (
+    modelId === cachedModelId &&
+    cachedPricing &&
+    cachedPricing.tokens_per_credit &&
+    cachedPricing.price_per_million_tokens
+  ) {
+    //! 🎯 Use cache
+    tokens_per_credit = cachedPricing.tokens_per_credit;
+    price_per_million_tokens = cachedPricing.price_per_million_tokens;
+  } else {
+    //* 🐢 Fallback to DB fetch
+    try {
+      const model = await databases.getDocument(
+        process.env.APPWRITE_DATABASE_ID,
+        process.env.APPWRITE_AI_COLLECTION_ID,
+        modelId
+      );
+
+      if (!model) {
+        return NextResponse.json(
+          { message: "Model not found" },
+          { status: 404 }
+        );
+      }
+
+      tokens_per_credit = model.tokens_per_credit;
+      price_per_million_tokens = model.price_per_million_tokens;
+
+      //? Cache the model pricing and id in cookies for 1 hour
+      const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+      //? Model pricing object
+      const modelPricing = {
+        tokens_per_credit,
+        price_per_million_tokens,
+      };
+      cookieStore.set("model_pricing", JSON.stringify(modelPricing), {
+        expires,
+      });
+      cookieStore.set("model_id", modelId, {
+        expires,
+      });
+    } catch (error) {
+      console.error("Error fetching model pricing:", error);
+      return NextResponse.json(
+        { message: "Failed to fetch model pricing" },
+        { status: 500 }
+      );
+    }
+  }
+
+  //* Calculate the total credits used
+  const total_credits_used = parseFloat(
+    (totalTokens / tokens_per_credit).toFixed(3) //? 3 decimal points
+  );
+
+  //* Calculate the total cost based on the model's pricing in USD
+  const percision = 1000; //? 3 decimal points
+  const total_raw_cost = (totalTokens / 1000000) * price_per_million_tokens;
+  //? Round to 3 decimal points
+  const total_cost = Math.ceil(total_raw_cost * percision) / percision;
+
   try {
-    const model = await databases.getDocument(
+    //* Check if the user has enough credits to cover the cost
+    const user = await databases.getDocument(
       process.env.APPWRITE_DATABASE_ID,
-      process.env.APPWRITE_AI_COLLECTION_ID,
-      modelId
+      process.env.APPWRITE_USERS_COLLECTION_ID,
+      userId
     );
 
-    if (!model) {
-      return NextResponse.json({ message: "Model not found" }, { status: 404 });
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    const tokens_per_credit = model?.tokens_per_credit;
-    const price_per_million_tokens = model?.price_per_million_tokens;
+    const user_credits = user?.credits;
 
-    //* Calculate the total credits used keeping 2 decimal points for simplicity
-    const total_credits_used = (totalTokens / tokens_per_credit).toFixed(2);
+    const new_credits = user_credits - total_credits_used;
 
-    //* Calculate the total cost based on the model's pricing
-    const percision = 1000; //? 3 decimal points
-    const total_raw_cost = (totalTokens / 1000000) * price_per_million_tokens;
-    //? Round to 3 decimal points
-    const total_cost = Math.ceil(total_raw_cost * percision) / percision;
+    if (new_credits <= 0) {
+      return NextResponse.json(
+        { message: "Not enough credits" },
+        { status: 402 }
+      );
+    }
 
-    console.warn("Total Tokens: ", totalTokens);
-    console.warn("Total Credits Used: ", total_credits_used);
-    console.warn("Total Cost: ", total_cost);
-    console.warn("Tokens per credit: ", tokens_per_credit);
+    //* Update the user's credits in the database
+    const updatedUser = await databases.updateDocument(
+      process.env.APPWRITE_DATABASE_ID,
+      process.env.APPWRITE_USERS_COLLECTION_ID,
+      userId,
+      {
+        credits: new_credits,
+      }
+    );
+
+    if (!updatedUser) {
+      return NextResponse.json(
+        { message: "Failed to update user credits" },
+        { status: 500 }
+      );
+    }
+
+    console.log("User credits updated successfully", {
+      userId,
+      old_credits: user_credits,
+      new_credits,
+      total_cost,
+    });
 
     return NextResponse.json(
       {
-        message: "Cost calculated successfully",
+        message: "Cost calculated and deducted successfully",
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error in GET /api/token:", error);
+    console.error("Cost update error", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

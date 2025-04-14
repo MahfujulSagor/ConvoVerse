@@ -2,15 +2,21 @@ import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { BeatLoader } from "react-spinners";
 import { Coins } from "lucide-react";
+import { useAppwrite } from "@/context/appwrite-context";
 
 const Balance = () => {
+  const { session, refreshSession } = useAppwrite();
   const [loading, setLoading] = useState(false);
 
-  const handleBalanceClick = () => {
+  const handleBalanceClick = async () => {
     setLoading(true);
-    setTimeout(() => {
+    try {
+      await refreshSession();
+    } catch (error) {
+      console.error("Error fetching balance:", error);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -29,7 +35,9 @@ const Balance = () => {
             <div className="font-medium">
               <Coins color="#cdcdcd" />
             </div>
-            <div className="font-medium text-teal-400">100</div>
+            <div className="font-medium text-teal-400">
+              {session ? session.credits : 0.0}
+            </div>
           </div>
         )}
       </Button>

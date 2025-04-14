@@ -5,7 +5,7 @@ import { Query } from "appwrite";
 import { decrypt, encrypt } from "@/lib/encrypt_decrypt";
 
 export const POST = async (req) => {
-  const { prompt, model_id } = await req.json();
+  const { prompt, model_id, userId } = await req.json();
 
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get("session_token")?.value;
@@ -25,6 +25,33 @@ export const POST = async (req) => {
     return NextResponse.json(
       { error: "Missing required data" },
       { status: 400 }
+    );
+  }
+
+  try {
+    const userResponse = await databases.getDocument(
+      process.env.APPWRITE_DATABASE_ID,
+      process.env.APPWRITE_USERS_COLLECTION_ID,
+      userId,
+    );
+
+    if (!userResponse) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const userCredits = userResponse.credits;
+
+    if (userCredits <= 0) {
+      return NextResponse.json(
+        { error: "Insufficient credits" },
+        { status: 403 }
+      );
+    }
+  } catch (error) {
+    console.error("Server error while checking user credits", error);
+    return NextResponse.json(
+      { error: "Something went wrong checking user credits" },
+      { status: 500 }
     );
   }
 

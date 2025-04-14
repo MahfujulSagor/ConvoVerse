@@ -24,6 +24,7 @@ import { useParams, useRouter } from "next/navigation";
 import ChatSkeleton from "@/components/ChatSkeleton";
 import ToolTip from "@/components/ToolTip";
 import Balance from "@/components/CreditBalance";
+import { useAppwrite } from "@/context/appwrite-context";
 
 const inputSchema = z.object({
   message: z.string().nonempty("Message cannot be empty"),
@@ -39,6 +40,8 @@ const Chat = () => {
   const [deletedHistoryHandled, setDeletedHistoryHandled] = useState(false);
 
   const { currentAI, deletedHistory } = useAI();
+  const { session } = useAppwrite();
+
   const [messages, setMessages] = useState([]); //? Chat messages
   const [showSkeleton, setShowSkeleton] = useState(false); //? Skeleton loading
   const [models, setModels] = useState([]); //? Models
@@ -159,7 +162,7 @@ const Chat = () => {
     initializeModels();
   }, [currentAI, setValue]);
 
-  const aiChat = async ({ message, model_id }) => {
+  const aiChat = async ({ message, model_id, userId }) => {
     setShowSkeleton(true);
     responseRef.current = "";
     try {
@@ -171,6 +174,7 @@ const Chat = () => {
         body: JSON.stringify({
           prompt: message,
           model_id: model_id,
+          userId,
         }),
       });
 
@@ -326,16 +330,45 @@ const Chat = () => {
 
     try {
       resetField("message");
-      await aiChat({ ...data, model_id: model_id });
+      const userId = session?.$id || "";
+
+      await aiChat({ ...data, model_id: model_id, userId });
 
       const fullResponse = responseRef.current;
       const prompt = data.message;
 
-      //? Store conversation history
-      await storeConversationHistory({ prompt, fullResponse, historyId });
+      if (!fullResponse) {
+        console.error("AI response was empty");
+        toast.error("AI did not return a response");
+        return;
+      }
 
       //? Calculate cost
-      await calculateCost(model_id, prompt, fullResponse);
+      const creditRes = await calculateCost(
+        model_id,
+        prompt,
+        fullResponse,
+        userId
+      );
+
+      if (!creditRes) {
+        console.error("Failed to calculate cost");
+        toast.error("Failed to calculate cost");
+        return;
+      }
+
+      //? Store conversation history
+      const storeConRes = await storeConversationHistory({
+        prompt,
+        fullResponse,
+        historyId,
+      });
+
+      if (!storeConRes) {
+        console.error("Failed to store chat history");
+        toast.error("Failed to store chat history");
+        return;
+      }
     } catch (error) {
       console.error("Error while processing prompt", error);
       resetField("message");
@@ -365,15 +398,18 @@ const Chat = () => {
         console.error("Failed to store chat history");
         return;
       }
+
+      return true;
     } catch (error) {
       console.error("Error storing chat history:", error);
       toast.error("Error storing chat history");
+      return false;
     }
   };
 
   //* Calculate cost
-  const calculateCost = async (modelId, prompt, aiResponse) => {
-    if (!modelId || !prompt || !aiResponse) {
+  const calculateCost = async (modelId, prompt, aiResponse, userId) => {
+    if (!modelId || !prompt || !aiResponse || !userId) {
       console.error("Missing parameters for cost calculation");
       return;
     }
@@ -388,6 +424,7 @@ const Chat = () => {
           modelId,
           prompt,
           aiResponse,
+          userId,
         }),
       });
 
@@ -395,9 +432,12 @@ const Chat = () => {
         console.error("Failed to calculate cost");
         return;
       }
+
+      return true;
     } catch (error) {
       console.error("Error calculating cost:", error);
       toast.error("Error calculating cost");
+      return false;
     }
   };
 

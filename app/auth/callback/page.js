@@ -73,7 +73,7 @@ export default function OAuthCallback() {
     //? Function to check user data and create if not exists
     const checkUserData = async (userId) => {
       try {
-        const userResponse = await fetch("/api/auth/create-user", {
+        const userResponse = await fetch("/api/auth/user", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId }),
