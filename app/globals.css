@@ -129,8 +129,7 @@
   li {
     margin-top: 6px;
     list-style: disc;
-    list-style-position: inside;
-    padding-left: 12px;
+    margin-left: 12px;
   }
 
   p {
