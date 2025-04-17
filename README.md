@@ -34,7 +34,7 @@ Built for speed, simplicity, and scalability, it offers developers, researchers,
 - **Frontend**: Next.js + TailwindCSS
 - **Backend**: Direct API integration with multiple LLM providers
 - **Auth & DB**: Appwrite (OAuth, DB, storage, user/session management)
-- **Dev Tools**: TypeScript, Zod, React Hook Form, Vercel
+- **Dev Tools**: JavaScript, Zod, React Hook Form, Vercel
 
 ---
 
