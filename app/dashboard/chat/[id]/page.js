@@ -569,7 +569,7 @@ const Chat = () => {
                                   multiple
                                   accept="image/*"
                                   id="files"
-                                  className="hidden"
+                                  className="hidden cursor-not-allowed"
                                   onChange={(e) => handleFileChange(e)}
                                   // disabled={value.length >= 3}
                                   disabled={true}
