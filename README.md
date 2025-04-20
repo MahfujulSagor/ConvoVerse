@@ -48,7 +48,7 @@ Built for speed, simplicity, and scalability, it offers developers, researchers,
 
 ## 👋 Stay Tuned
 
-More features like file uploads, credit-based access, team collaboration, and analytics are coming soon.
+More features like file uploads, short-term memory, credit-based access, team collaboration, and analytics are coming soon.
 
 ---
 
