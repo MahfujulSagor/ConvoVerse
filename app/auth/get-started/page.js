@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import GoogleSignIn from "@/components/GoogleSignIn";
 import gsap from "gsap";
+import GithubSignIn from "@/components/GithubSignIn";
 
 const GetStarted = () => {
   const cardRef = useRef(null);
@@ -54,8 +55,9 @@ const GetStarted = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className={"flex flex-col gap-2"}>
-          <div ref={buttonRef} className="button">
+          <div ref={buttonRef} className="button flex flex-col gap-2">
             <GoogleSignIn />
+            <GithubSignIn />
           </div>
         </CardContent>
       </Card>

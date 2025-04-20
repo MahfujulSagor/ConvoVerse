@@ -98,8 +98,7 @@ export const AIProvider = ({ children }) => {
           }
         );
         if (!response.ok) {
-          console.error("Error fetching chat history:", response.statusText);
-          toast.error("Failed to fetch chat history");
+          console.warn("Error fetching chat history:", response.statusText);
           return;
         }
         const data = await response.json();
