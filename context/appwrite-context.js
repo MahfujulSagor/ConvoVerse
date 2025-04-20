@@ -68,10 +68,23 @@ export const AppwriteProvider = ({ children }) => {
   });
 
   //* Sign in with Google
-  const signIn = async () => {
+  const signInWithGoogle = async () => {
     try {
       account.createOAuth2Token(
         OAuthProvider.Google,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/auth/get-started`
+      );
+    } catch (error) {
+      console.error("Error signing in:", error);
+    }
+  };
+
+  //* Sign in with Github
+  const signInWithGithub = async () => {
+    try {
+      account.createOAuth2Token(
+        OAuthProvider.Github,
         `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
         `${process.env.NEXT_PUBLIC_BASE_URL}/auth/get-started`
       );
@@ -102,7 +115,8 @@ export const AppwriteProvider = ({ children }) => {
   return (
     <AppwriteContext.Provider
       value={{
-        signIn,
+        signInWithGoogle,
+        signInWithGithub,
         session,
         signOut,
         sessionLoading,
