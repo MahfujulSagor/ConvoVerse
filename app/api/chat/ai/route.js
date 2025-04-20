@@ -3,9 +3,10 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { Query } from "appwrite";
 import { decrypt, encrypt } from "@/lib/encrypt_decrypt";
+import { summarizer } from "@/lib/summarizer";
 
 export const POST = async (req) => {
-  const { prompt, model_id, userId } = await req.json();
+  const { prompt, model_id, userId, historyId } = await req.json();
 
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get("session_token")?.value;
@@ -21,7 +22,7 @@ export const POST = async (req) => {
     );
   }
 
-  if (!prompt || !model_id) {
+  if (!prompt || !model_id || !historyId || !userId) {
     return NextResponse.json(
       { error: "Missing required data" },
       { status: 400 }
@@ -32,7 +33,7 @@ export const POST = async (req) => {
     const userResponse = await databases.getDocument(
       process.env.APPWRITE_DATABASE_ID,
       process.env.APPWRITE_USERS_COLLECTION_ID,
-      userId,
+      userId
     );
 
     if (!userResponse) {
@@ -91,7 +92,32 @@ export const POST = async (req) => {
     }
   }
 
-  const modifiedPrompt = `Provide a short but complete answer to the following prompt (NOTE: if greating type prompt keep it short): ${prompt}`;
+  const conversations_history = await databases.listDocuments(
+    process.env.APPWRITE_DATABASE_ID,
+    process.env.APPWRITE_CONVERSATIONS_COLLECTION_ID,
+    [
+      Query.equal("history_id", historyId),
+      Query.limit(5),
+      Query.orderAsc("$createdAt"),
+    ]
+  );
+
+  let contextSummary = "";
+
+  if (
+    conversations_history?.documents?.length &&
+    conversations_history.documents.length > 0
+  ) {
+    const last_5_conversations = conversations_history.documents;
+    contextSummary = summarizer(last_5_conversations);
+  } else {
+    contextSummary =
+      "This is the user's first interaction. No previous context is available."; //? No previous context available
+  }
+
+  const short_modified_prompt = `provide a short but complete answer to the following prompt (NOTE: if greating type prompt keep it short): ${prompt}`;
+
+  const final_modified_prompt = `Context: "${contextSummary}"\n\nNow ${short_modified_prompt}`; //? Final prompt to be sent to the AI model
 
   try {
     const response = await fetch(process.env.OPENROUTER_BASE_URL, {
@@ -105,7 +131,7 @@ export const POST = async (req) => {
         messages: [
           {
             role: "user",
-            content: modifiedPrompt,
+            content: final_modified_prompt,
           },
         ],
         stream: true,

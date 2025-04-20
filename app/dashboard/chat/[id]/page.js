@@ -162,7 +162,7 @@ const Chat = () => {
     initializeModels();
   }, [currentAI, setValue]);
 
-  const aiChat = async ({ message, model_id, userId }) => {
+  const aiChat = async ({ message, model_id, userId, historyId }) => {
     setShowSkeleton(true);
     responseRef.current = "";
     try {
@@ -175,6 +175,7 @@ const Chat = () => {
           prompt: message,
           model_id: model_id,
           userId,
+          historyId,
         }),
       });
 
@@ -209,6 +210,9 @@ const Chat = () => {
 
                 if (parsed?.error?.code === 429) {
                   console.error("Quota exceeded. Please try again later.");
+                  toast.error(
+                    "The system is currently unavailable. Please try again later."
+                  );
                   setMessages((prevMessages) => [
                     ...prevMessages,
                     {
@@ -331,7 +335,7 @@ const Chat = () => {
       resetField("message");
       const userId = session?.$id || "";
 
-      await aiChat({ ...data, model_id: model_id, userId });
+      await aiChat({ ...data, model_id: model_id, userId, historyId });
 
       const fullResponse = responseRef.current;
       const prompt = data.message;
