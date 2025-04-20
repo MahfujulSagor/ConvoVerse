@@ -7,7 +7,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import { History } from "lucide-react";
+import { History, Library } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -91,9 +91,10 @@ export function NavMain() {
         <SidebarGroupLabel>History</SidebarGroupLabel>
         <SidebarMenu>
           <SidebarMenuItem>
-            <div className="text-[#cdcdcd] text-sm text-center">
-              No history found
-            </div>
+            <SidebarMenuButton tooltip={"No history found"}>
+              <Library color="#cdcdcd" />
+              <span className="text-[#cdcdcd]">No history found</span>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
