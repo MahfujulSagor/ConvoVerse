@@ -55,20 +55,35 @@ export const AIProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    if (!session?.$id) {
+      return;
+    }
     setIsClient(true);
+    const userId = session.$id;
 
     if (typeof window !== "undefined") {
       try {
         const storedAI = localStorage.getItem("currentAI");
         setCurrentAI(storedAI ? JSON.parse(storedAI) : AI[0]);
 
-        const storedHistory = localStorage.getItem("history");
+        //? Remove legacy history from localStorage
+        localStorage.removeItem("history");
+
+        const validKey = `history_${userId}`;
+
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith("history_") && key !== validKey) {
+            localStorage.removeItem(key);
+          }
+        });
+        //? Fetch history from localStorage
+        const storedHistory = localStorage.getItem(validKey);
         setHistory(storedHistory ? JSON.parse(storedHistory) : []);
       } catch (error) {
         console.error("Error accessing localStorage:", error);
       }
     }
-  }, []);
+  }, [session?.$id]);
 
   //? Store in localStorage when AI changes
   useEffect(() => {
@@ -105,7 +120,7 @@ export const AIProvider = ({ children }) => {
         setHistory(data);
         //* Store in localStorage
         if (isClient) {
-          localStorage.setItem("history", JSON.stringify(data));
+          localStorage.setItem(`history_${session.$id}`, JSON.stringify(data));
         }
       } catch (error) {
         console.error("Error fetching chat history:", error);
@@ -171,7 +186,10 @@ export const AIProvider = ({ children }) => {
       setHistory((prevHistory) => {
         const updatedHistory = [newHistory, ...prevHistory];
         if (isClient) {
-          localStorage.setItem("history", JSON.stringify(updatedHistory));
+          localStorage.setItem(
+            `history_${userId}`,
+            JSON.stringify(updatedHistory)
+          );
         }
         return updatedHistory;
       });
@@ -200,7 +218,10 @@ export const AIProvider = ({ children }) => {
     const updatedHistory = history.filter((item) => item.$id !== historyId);
     setHistory(updatedHistory);
     if (isClient) {
-      localStorage.setItem("history", JSON.stringify(updatedHistory));
+      localStorage.setItem(
+        `history_${session.$id}`,
+        JSON.stringify(updatedHistory)
+      );
     }
     setDeletedHistory(historyId);
 
