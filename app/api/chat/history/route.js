@@ -46,8 +46,14 @@ export const POST = async (req) => {
       );
     }
 
+    const response = {
+      $id: newHistory.$id,
+      title: newHistory.title,
+      $createdAt: newHistory.$createdAt,
+    };
+
     return NextResponse.json(
-      newHistory,
+      response,
       { message: "Chat history created successfully" },
       { status: 200 }
     );
@@ -85,7 +91,11 @@ export const GET = async (req) => {
     const history = await databases.listDocuments(
       process.env.APPWRITE_DATABASE_ID,
       process.env.APPWRITE_HISTORY_COLLECTION_ID,
-      [Query.equal("user_id", userId), Query.orderAsc("$createdAt")]
+      [
+        Query.equal("user_id", userId),
+        Query.select(["title", "$id", "$createdAt"]),
+        Query.orderAsc("$createdAt"),
+      ]
     );
 
     if (!history.documents || history.documents.length === 0) {
