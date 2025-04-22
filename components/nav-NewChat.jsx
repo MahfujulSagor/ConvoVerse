@@ -33,7 +33,7 @@ export function NavNewChat() {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Chat_ai</SidebarGroupLabel>
+      <SidebarGroupLabel>ConvoVerse</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item, index) => {
           return (
