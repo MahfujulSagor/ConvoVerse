@@ -95,6 +95,7 @@ export const GET = async (req) => {
         Query.equal("user_id", userId),
         Query.select(["title", "$id", "$createdAt"]),
         Query.orderAsc("$createdAt"),
+        Query.limit(10),
       ]
     );
 
