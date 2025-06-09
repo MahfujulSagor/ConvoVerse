@@ -39,7 +39,7 @@ export const POST = async (req) => {
     }
 
     const userData = {
-      free_prompts: 3,
+      free_prompts: 5,
     };
 
     //* Store user data in Appwrite database
