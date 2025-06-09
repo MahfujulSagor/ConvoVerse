@@ -45,7 +45,7 @@ const Chat = () => {
   const [messages, setMessages] = useState([]); //? Chat messages
   const [showSkeleton, setShowSkeleton] = useState(false); //? Skeleton loading
   const [models, setModels] = useState([]); //? Models
-  // const [selectedFiles, setSelectedFiles] = useState([]); //? Selected files
+  const [selectedFiles, setSelectedFiles] = useState([]); //? Selected files
 
   const responseRef = useRef();
 
