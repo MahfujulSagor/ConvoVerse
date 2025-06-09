@@ -32,7 +32,6 @@ const Onboarding = () => {
         the cost of traditional subscriptions.You can tap into a wide range of
         AI tools, paying only for what you use—no subscriptions, no hidden fees,
         and no expiration dates.{" "}
-        <b className="text-foreground">Just pay for what you need.</b>
       </p>
       <div className="flex flex-row max-w-2xl gap-4 mt-4">
         <div className="rounded-xl w-1/2 p-4 flex flex-col gap-2 leading-relaxed text-center max-w-xl border border-dashed bg-background">

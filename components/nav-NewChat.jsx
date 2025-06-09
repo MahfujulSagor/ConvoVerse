@@ -40,8 +40,8 @@ export function NavNewChat() {
             <ToolTip key={index} text={"New Chat"} position={"right"}>
               <SidebarMenuItem>
                 <Link href={item.url} onClick={handleNewChatClick}>
-                  <SidebarMenuButton tooltip={item.title}>
-                    <Pencil />
+                  <SidebarMenuButton className={'cursor-pointer'} tooltip={item.title}>
+                    <Pencil className="text-violet-400" />
                     <span>{item.title}</span>
                   </SidebarMenuButton>
                 </Link>
