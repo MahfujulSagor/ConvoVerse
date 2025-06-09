@@ -39,7 +39,7 @@ export const POST = async (req) => {
     }
 
     const userData = {
-      credits: 10,
+      free_prompts: 3,
     };
 
     //* Store user data in Appwrite database
@@ -117,7 +117,7 @@ export const GET = async (req) => {
     }
 
     return NextResponse.json(
-      user.credits,
+      user.free_prompts,
       {
         message: "User data fetched successfully",
       },
