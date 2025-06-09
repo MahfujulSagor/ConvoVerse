@@ -45,22 +45,22 @@ const Chat = () => {
   const [messages, setMessages] = useState([]); //? Chat messages
   const [showSkeleton, setShowSkeleton] = useState(false); //? Skeleton loading
   const [models, setModels] = useState([]); //? Models
-  const [selectedFiles, setSelectedFiles] = useState([]); //? Selected files
+  // const [selectedFiles, setSelectedFiles] = useState([]); //? Selected files
 
   const responseRef = useRef();
 
+  //? Reference to scroll to the bottom
   const scrollRef = useRef(null);
 
-  const { register, handleSubmit, resetField, control, setValue, getValues } =
-    useForm({
-      resolver: zodResolver(inputSchema),
-      defaultValues: {
-        message: "",
-        model_id: "",
-        files: [],
-        role: "user",
-      },
-    });
+  const { register, handleSubmit, resetField, control, setValue } = useForm({
+    resolver: zodResolver(inputSchema),
+    defaultValues: {
+      message: "",
+      model_id: "",
+      files: [],
+      role: "user",
+    },
+  });
 
   useEffect(() => {
     const fetchConversations = async () => {
@@ -86,6 +86,8 @@ const Chat = () => {
         if (data.length === 0) {
           toast.info("No conversations found.");
         }
+        //? Scroll to the bottom
+        scrollRef.current.scrollIntoView({ behavior: "smooth" });
       } catch (error) {
         console.error("Error fetching previous conversations:", error);
         toast.error("Could not load conversation history.");
@@ -344,9 +346,6 @@ const Chat = () => {
         role: data.role,
       },
     ]);
-
-    //? Scroll to the bottom
-    scrollRef.current.scrollIntoView({ behavior: "smooth" });
 
     const selectedModel = models.find((model) => model.$id === data.model_id);
     if (!selectedModel) return console.error("Invalid model selected");
