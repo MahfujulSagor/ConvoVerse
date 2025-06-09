@@ -117,7 +117,10 @@ export const GET = async (req) => {
     }
 
     return NextResponse.json(
-      user.free_prompts,
+      {
+        free_prompts: user.free_prompts,
+        has_api_key: user.api_key ? true : false,
+      },
       {
         message: "User data fetched successfully",
       },

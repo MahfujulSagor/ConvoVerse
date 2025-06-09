@@ -29,8 +29,10 @@ export const POST = async (req) => {
     );
   }
 
+  let userResponse;
+
   try {
-    const userResponse = await databases.getDocument(
+    userResponse = await databases.getDocument(
       process.env.APPWRITE_DATABASE_ID,
       process.env.APPWRITE_USERS_COLLECTION_ID,
       userId
@@ -59,7 +61,7 @@ export const POST = async (req) => {
   let AI_MODEL_NAME = "";
 
   if (cachedModelId === model_id && cachedModelNameEncrypted && cachedIv) {
-    // Decrypt the cached model name
+    //! Decrypt the cached model name
     const decryptedModelName = decrypt(cachedModelNameEncrypted, cachedIv);
     AI_MODEL_NAME = decryptedModelName;
   } else {
@@ -119,11 +121,28 @@ export const POST = async (req) => {
 
   const final_modified_prompt = `Context: "${contextSummary}"\n\nNow ${short_modified_prompt}`; //? Final prompt to be sent to the AI model
 
+  //! 🔐 Decrypt user API key
+  let API_KEY = process.env.OPENROUTER_API_KEY; //? fallback default
   try {
+    const user_api_key = userResponse.api_key;
+    const user_api_iv = userResponse.api_iv;
+
+    if (user_api_key && user_api_iv) {
+      const decryptedKey = decrypt(user_api_key, user_api_iv);
+      if (decryptedKey?.trim()) {
+        API_KEY = decryptedKey;
+      }
+    }
+  } catch (error) {
+    console.error("Error during api key validation", error);
+  }
+
+  try {
+    //* 🤖 Call OpenRouter
     const response = await fetch(process.env.OPENROUTER_BASE_URL, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        Authorization: `Bearer ${API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

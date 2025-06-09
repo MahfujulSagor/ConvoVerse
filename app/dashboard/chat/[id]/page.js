@@ -190,7 +190,7 @@ const Chat = () => {
           {
             role: "assistant",
             content:
-              "❌ You have run out of free prompts. Please enter api key to proceed conversations.",
+              "❌ You have run out of free prompts. Please add an API key to proceed with conversations.",
           },
         ]);
         setShowSkeleton(false);
@@ -359,14 +359,17 @@ const Chat = () => {
       await aiChat({ ...data, model_id: model_id, userId, historyId });
 
       //? Use when calculating token cost
-      // const fullResponse = responseRef.current;
-      // const prompt = data.message;
+      const fullResponse = responseRef.current;
+      const prompt = data.message;
 
-      // if (!fullResponse) {
-      //   console.error("AI response was empty");
-      //   toast.error("AI did not return a response");
-      //   return;
-      // }
+      if (!fullResponse) {
+        console.error("AI response was empty");
+        toast.error("AI did not return a response");
+        return;
+      }
+
+      //? Scroll to the bottom
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
 
       //? Calculate remaining free prompts
       const creditRes = await calculateCost(userId);

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { AISwitcher } from "@/components/ai-switcher";
 import { NavNewChat } from "./nav-NewChat";
+import { NavApiKey } from "./nav-api-key";
 
 export function AppSidebar({ ...props }) {
   return (
@@ -21,6 +22,7 @@ export function AppSidebar({ ...props }) {
         <AISwitcher />
       </SidebarHeader>
       <SidebarContent>
+        <NavApiKey />
         <NavNewChat />
         <NavMain />
       </SidebarContent>
