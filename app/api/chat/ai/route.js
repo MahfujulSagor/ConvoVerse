@@ -159,6 +159,15 @@ export const POST = async (req) => {
       }),
     });
 
+    if (!response.ok || !response.body) {
+      const errText = await response.text();
+      console.error("OpenRouter error response:", errText);
+      return NextResponse.json(
+        { error: "OpenRouter returned no body" },
+        { status: 500 }
+      );
+    }
+
     return new Response(response.body, {
       headers: {
         "Content-Type": "text/event-stream",
