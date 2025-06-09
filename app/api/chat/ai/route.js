@@ -67,7 +67,6 @@ export const POST = async (req) => {
     try {
       const decryptedModelName = decrypt(cachedModelNameEncrypted, cachedIv);
       AI_MODEL_NAME = decryptedModelName;
-      console.log("✅ Model name retrieved from cookie cache:", AI_MODEL_NAME);
     } catch (e) {
       console.warn("⚠️ Failed to decrypt cached model name");
     }
@@ -159,8 +158,6 @@ export const POST = async (req) => {
     );
   }
 
-  console.log("🚀 Sending request to OpenRouter with model:", AI_MODEL_NAME);
-
   try {
     //* 🤖 Call OpenRouter
     const response = await fetch(process.env.OPENROUTER_BASE_URL, {
@@ -193,8 +190,6 @@ export const POST = async (req) => {
         { status: 500 }
       );
     }
-
-    console.log("✅ OpenRouter responded with a stream");
 
     return new Response(response.body, {
       headers: {
