@@ -36,7 +36,7 @@ const Balance = () => {
               <Coins color="#cdcdcd" />
             </div>
             <div className="font-medium text-teal-400">
-              {session ? session.credits : 0.0}
+              {session ? session.free_prompts : 0}
             </div>
           </div>
         )}

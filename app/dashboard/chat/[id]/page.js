@@ -49,6 +49,8 @@ const Chat = () => {
 
   const responseRef = useRef();
 
+  const scrollRef = useRef(null);
+
   const { register, handleSubmit, resetField, control, setValue, getValues } =
     useForm({
       resolver: zodResolver(inputSchema),
@@ -162,6 +164,7 @@ const Chat = () => {
     initializeModels();
   }, [currentAI, setValue]);
 
+  //? AI Response
   const aiChat = async ({ message, model_id, userId, historyId }) => {
     setShowSkeleton(true);
     responseRef.current = "";
@@ -178,6 +181,21 @@ const Chat = () => {
           historyId,
         }),
       });
+
+      if (response.status === 403) {
+        console.warn("Insufficient free prompts!");
+        toast.warning("Looks like you have run out of free prompts");
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            role: "assistant",
+            content:
+              "❌ You have run out of free prompts. Please enter api key to proceed conversations.",
+          },
+        ]);
+        setShowSkeleton(false);
+        return;
+      }
 
       const reader = response.body?.getReader();
       if (!reader) {
@@ -327,6 +345,9 @@ const Chat = () => {
       },
     ]);
 
+    //? Scroll to the bottom
+    scrollRef.current.scrollIntoView({ behavior: "smooth" });
+
     const selectedModel = models.find((model) => model.$id === data.model_id);
     if (!selectedModel) return console.error("Invalid model selected");
     const model_id = selectedModel?.$id || "";
@@ -337,26 +358,21 @@ const Chat = () => {
 
       await aiChat({ ...data, model_id: model_id, userId, historyId });
 
-      const fullResponse = responseRef.current;
-      const prompt = data.message;
+      //? Use when calculating token cost
+      // const fullResponse = responseRef.current;
+      // const prompt = data.message;
 
-      if (!fullResponse) {
-        console.error("AI response was empty");
-        toast.error("AI did not return a response");
-        return;
-      }
+      // if (!fullResponse) {
+      //   console.error("AI response was empty");
+      //   toast.error("AI did not return a response");
+      //   return;
+      // }
 
-      //? Calculate cost
-      const creditRes = await calculateCost(
-        model_id,
-        prompt,
-        fullResponse,
-        userId
-      );
+      //? Calculate remaining free prompts
+      const creditRes = await calculateCost(userId);
 
       if (!creditRes) {
         console.error("Failed to calculate cost");
-        toast.error("Failed to calculate cost");
         return;
       }
 
@@ -411,25 +427,28 @@ const Chat = () => {
   };
 
   //* Calculate cost
-  const calculateCost = async (modelId, prompt, aiResponse, userId) => {
-    if (!modelId || !prompt || !aiResponse || !userId) {
+  const calculateCost = async (userId) => {
+    if (!userId) {
       console.error("Missing parameters for cost calculation");
       return;
     }
 
     try {
+      //? For now only calculated remaining free prompts
       const response = await fetch("/api/chat/token", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          modelId,
-          prompt,
-          aiResponse,
           userId,
         }),
       });
+
+      if (response.status === 403) {
+        console.warn("You have run out of free prompts.");
+        return;
+      }
 
       if (!response.ok) {
         console.error("Failed to calculate cost");
@@ -510,6 +529,7 @@ const Chat = () => {
                   {showSkeleton && <ChatSkeleton />}
                 </div>
               </div>
+              <div ref={scrollRef} className="ScrollHere" />
               {/* Input */}
               <div className="w-full max-w-3xl bg-background pb-8 sticky bottom-0 flex justify-center items-center">
                 <div className="w-full min-h-20 rounded-2xl p-4 border border-dashed">

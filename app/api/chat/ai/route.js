@@ -40,18 +40,18 @@ export const POST = async (req) => {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const userCredits = userResponse.credits;
+    const userFreePrompts = userResponse.free_prompts;
 
-    if (userCredits <= 0) {
+    if (userFreePrompts <= 0) {
       return NextResponse.json(
-        { error: "Insufficient credits" },
+        { error: "Insufficient free prompts" },
         { status: 403 }
       );
     }
   } catch (error) {
-    console.error("Server error while checking user credits", error);
+    console.error("Server error while checking user free prompts", error);
     return NextResponse.json(
-      { error: "Something went wrong checking user credits" },
+      { error: "Something went wrong checking user free prompts" },
       { status: 500 }
     );
   }

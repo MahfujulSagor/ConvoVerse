@@ -31,7 +31,7 @@ const fetchSession = async () => {
 
   if (!res.ok) throw new Error("Failed to fetch user data");
 
-  const userCredits = await res.json();
+  const userFreePrompts = await res.json();
 
   const storedAvatar = localStorage.getItem("avatarUrl");
 
@@ -39,7 +39,7 @@ const fetchSession = async () => {
     return {
       ...sessionData,
       avatar: storedAvatar,
-      credits: userCredits,
+      free_prompts: userFreePrompts,
     };
   }
 
@@ -49,7 +49,7 @@ const fetchSession = async () => {
   return {
     ...sessionData,
     avatar: avatarUrl,
-    credits: userCredits,
+    free_prompts: userFreePrompts,
   };
 };
 
