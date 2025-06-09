@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { databases } from "@/lib/appwrite";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
