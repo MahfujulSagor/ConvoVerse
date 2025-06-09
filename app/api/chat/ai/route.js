@@ -64,8 +64,13 @@ export const POST = async (req) => {
 
   if (cachedModelId === model_id && cachedModelNameEncrypted && cachedIv) {
     //! Decrypt the cached model name
-    const decryptedModelName = decrypt(cachedModelNameEncrypted, cachedIv);
-    AI_MODEL_NAME = decryptedModelName;
+    try {
+      const decryptedModelName = decrypt(cachedModelNameEncrypted, cachedIv);
+      AI_MODEL_NAME = decryptedModelName;
+      console.log("✅ Model name retrieved from cookie cache:", AI_MODEL_NAME);
+    } catch (e) {
+      console.warn("⚠️ Failed to decrypt cached model name");
+    }
   } else {
     try {
       const appwriteResponse = await databases.listDocuments(
@@ -84,11 +89,13 @@ export const POST = async (req) => {
         cookieStore.set("model_name_iv", encryptionIV);
 
         AI_MODEL_NAME = modelName;
+        console.log("✅ Model name fetched from Appwrite:", AI_MODEL_NAME);
       } else {
+        console.error("❌ No model found with id:", model_id);
         return NextResponse.json({ error: "Model not found" }, { status: 404 });
       }
     } catch (error) {
-      console.error(error);
+      console.error("❌ Error fetching model from Appwrite", error);
       return NextResponse.json(
         { error: "Something went wrong fetching model name from Appwrite" },
         { status: 500 }
@@ -105,6 +112,11 @@ export const POST = async (req) => {
       Query.orderAsc("$createdAt"),
     ]
   );
+
+  if (!AI_MODEL_NAME) {
+    console.error("❌ AI_MODEL_NAME is undefined or empty");
+    return NextResponse.json({ error: "Model name missing" }, { status: 400 });
+  }
 
   let contextSummary = "";
 
@@ -136,8 +148,18 @@ export const POST = async (req) => {
       }
     }
   } catch (error) {
-    console.error("Error during api key validation", error);
+    console.warn("⚠️ Error decrypting user API key", error);
   }
+
+  if (!API_KEY) {
+    console.error("❌ No API key available for OpenRouter");
+    return NextResponse.json(
+      { error: "No API key available" },
+      { status: 500 }
+    );
+  }
+
+  console.log("🚀 Sending request to OpenRouter with model:", AI_MODEL_NAME);
 
   try {
     //* 🤖 Call OpenRouter
@@ -161,12 +183,18 @@ export const POST = async (req) => {
 
     if (!response.ok || !response.body) {
       const errText = await response.text();
-      console.error("OpenRouter error response:", errText);
+      console.error("OpenRouter FAILED", {
+        status: response.status,
+        statusText: response.statusText,
+        errorText: errText,
+      });
       return NextResponse.json(
         { error: "OpenRouter returned no body" },
         { status: 500 }
       );
     }
+
+    console.log("✅ OpenRouter responded with a stream");
 
     return new Response(response.body, {
       headers: {
@@ -176,7 +204,7 @@ export const POST = async (req) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    console.error("❌ Exception during OpenRouter fetch", error);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }
