@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import Deepseek from "@/public/deepseek.svg";
 import Gemini from "@/public/gemini.svg";
 import Meta from "@/public/meta.svg";
+import Mistral from "@/public/mistral.svg";
 import Nvidia from "@/public/nvidia.svg";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -39,6 +40,11 @@ const AI = [
     name: "Nvidia",
     logo: Nvidia,
     organization: "nvidia",
+  },
+  {
+    name: "Mistral",
+    logo: Mistral,
+    organization: "mistral",
   },
 ];
 

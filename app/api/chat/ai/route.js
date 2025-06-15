@@ -171,7 +171,7 @@ export const POST = async (req) => {
         messages: [
           {
             role: "user",
-            content: final_modified_prompt,
+            content: [{ type: "text", text: final_modified_prompt }],
           },
         ],
         stream: true,
