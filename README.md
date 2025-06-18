@@ -43,13 +43,12 @@ Built for speed, simplicity, and scalability, it offers developers, researchers,
 1. **Sign up or log in** using secure OAuth authentication.
 2. **Start chatting** with cutting-edge AIs in a beautiful, fast interface.
 3. **Manage your conversations and usage** with full backend support.
+4. **use your own API key** if you run out of free prompts.
 
 ---
 
 ## 👋 Stay Tuned
 
-More features like file uploads, short-term memory, credit-based access, team collaboration, and analytics are coming soon.
+More features like file uploads, credit-based access, team collaboration, and analytics are coming soon.
 
 ---
-
-> Built with ❤️ by MahfujulSagor, MahmudulShawn, MushfikurRahman.
