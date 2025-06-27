@@ -88,7 +88,6 @@ export const POST = async (req) => {
         cookieStore.set("model_name_iv", encryptionIV);
 
         AI_MODEL_NAME = modelName;
-        console.log("✅ Model name fetched from Appwrite:", AI_MODEL_NAME);
       } else {
         console.error("❌ No model found with id:", model_id);
         return NextResponse.json({ error: "Model not found" }, { status: 404 });
