@@ -170,6 +170,8 @@ const Chat = () => {
   const aiChat = async ({ message, model_id, userId, historyId }) => {
     setShowSkeleton(true);
     responseRef.current = "";
+    let gotResponse = false; //? 👈 Track if we got any actual content
+    let responseTimedOut = false;
     try {
       const response = await fetch(`/api/chat/ai`, {
         method: "POST",
@@ -258,7 +260,7 @@ const Chat = () => {
                 if (!content) {
                   continue;
                 }
-
+                gotResponse = true;
                 responseRef.current += content;
                 setMessages((prevMessages) => {
                   const lastMessage = prevMessages[prevMessages.length - 1];
@@ -284,6 +286,19 @@ const Chat = () => {
       }
     } catch (error) {
       console.error(error);
+    }
+
+    //? After all attempts, if nothing streamed, add failure fallback
+    if (!gotResponse || responseTimedOut) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "⚠️ The selected model did not respond. Please try again or choose a different model.",
+        },
+      ]);
+      toast.error("Model did not respond");
     }
   };
 
@@ -362,8 +377,7 @@ const Chat = () => {
       const prompt = data.message;
 
       if (!fullResponse) {
-        console.error("AI response was empty");
-        toast.error("AI did not return a response");
+        console.warn("AI response was empty");
         return;
       }
 
